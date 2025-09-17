@@ -2,96 +2,66 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>雞排訂購單</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>🐔 雞排訂購單</h1>
+  <div class="container">
+    <h1>🐔 雞排訂購單</h1>
 
-  <form id="orderForm">
-    姓名：<input type="text" id="name" required><br><br>
+    <label>姓名：<input type="text" id="name" required></label>
 
-    <h2>🍗 主餐（擇一）</h2>
-    <div>
-      <label><input type="radio" name="main" id="main1" value="85" data-name="脆皮雞排"> 脆皮雞排 ($85)</label>
-      <select id="flavor-main1"></select>
-    </div>
-    <div>
-      <label><input type="radio" name="main" id="main2" value="70" data-name="無骨雞塊"> 無骨雞塊 ($70)</label>
-      <select id="flavor-main2"></select>
-    </div>
-    <div>
-      <label><input type="radio" name="main" id="main3" value="85" data-name="無骨雞腿排"> 無骨雞腿排 ($85)</label>
-      <select id="flavor-main3"></select>
-    </div>
-    <div>
-      <label><input type="radio" name="main" id="main4" value="70" data-name="鮮魷"> 鮮魷 ($70)</label>
-      <select id="flavor-main4"></select>
-    </div>
-    <div>
-      <label><input type="radio" name="main" id="main5" value="120" data-name="無敵雞塊(大)"> 無敵雞塊(大) ($120)</label>
-      <select id="flavor-main5"></select>
-    </div>
+    <h2>主餐（擇一，可不選）</h2>
+    <div id="mains"></div>
 
-    <h2>🍟 點心（可複選）</h2>
-    <div>
-      <label><input type="checkbox" name="snack" id="snack1" value="39" data-name="柳葉魚"> 柳葉魚 ($39)</label>
-      <select id="flavor-snack1"></select>
-    </div>
-    <div>
-      <label><input type="checkbox" name="snack" id="snack2" value="30" data-name="脆皮雞心"> 脆皮雞心 ($30)</label>
-      <select id="flavor-snack2"></select>
-    </div>
-    <!-- 其他點心依照 menu 繼續往下排 -->
+    <h2>點心（可複選）</h2>
+    <div id="sides"></div>
 
-    <h2>🥤 飲料（可複選）</h2>
-    <div>
-      <label><input type="checkbox" name="drink" id="drink1" value="10" data-name="冬瓜紅茶"> 冬瓜紅茶 ($10)</label>
-      甜度：<select id="sweet-drink1"></select>
-      冰塊：<select id="ice-drink1"></select>
-    </div>
-    <div>
-      <label><input type="checkbox" name="drink" id="drink2" value="10" data-name="泡沫綠茶"> 泡沫綠茶 ($10)</label>
-      甜度：<select id="sweet-drink2"></select>
-      冰塊：<select id="ice-drink2"></select>
-    </div>
-    <div>
-      <label><input type="checkbox" name="drink" id="drink3" value="20" data-name="可樂"> 可樂 ($20)</label>
-      甜度：<select id="sweet-drink3"></select>
-      冰塊：<select id="ice-drink3"></select>
-    </div>
-    <div>
-      <label><input type="checkbox" name="drink" id="drink4" value="20" data-name="雪碧"> 雪碧 ($20)</label>
-      甜度：<select id="sweet-drink4"></select>
-      冰塊：<select id="ice-drink4"></select>
-    </div>
+    <h2>飲料（可複選）</h2>
+    <div id="drinks"></div>
+    <label>甜度：
+      <select id="sugar">
+        <option value="正常">正常</option>
+        <option value="少糖">少糖</option>
+        <option value="半糖">半糖</option>
+        <option value="微糖">微糖</option>
+        <option value="無糖">無糖</option>
+      </select>
+    </label>
+    <label>冰塊：
+      <select id="ice">
+        <option value="正常">正常</option>
+        <option value="少冰">少冰</option>
+        <option value="去冰">去冰</option>
+        <option value="完全去冰">完全去冰</option>
+      </select>
+    </label>
 
-    <h2>🍱 套餐（擇一，不可退）</h2>
-    <div>
-      <label><input type="radio" name="combo" id="combo1" value="120" data-name="1號套餐"> 1號套餐：雞排 + 薯條 + 飲料 ($120)</label>
-      <br>主餐口味：<select id="flavor-combo1"></select>
-      <br>薯條口味：<select id="fries-combo1"></select>
-      <br>飲料：<select id="drink-combo1"></select>
-      甜度：<select id="sweet-combo1"></select>
-      冰塊：<select id="ice-combo1"></select>
-    </div>
+    <h2>套餐（擇一，可不選）</h2>
+    <div id="sets"></div>
 
-    <h3>總金額：<span id="totalPrice">0</span> 元</h3>
-    <button type="submit">送出訂單</button>
-  </form>
+    <h3>總金額：<span id="total">0</span> 元</h3>
+    <button id="submitOrder">送出訂單</button>
 
-  <h2>📋 訂單總覽</h2>
-  <table id="orderTable" border="1">
-    <thead>
-      <tr>
-        <th>姓名</th><th>主餐</th><th>主餐口味</th><th>點心+口味</th>
-        <th>飲料</th><th>甜度</th><th>冰塊</th>
-        <th>套餐</th><th>套餐口味</th><th>套餐飲料</th><th>套餐甜度</th><th>套餐冰塊</th>
-        <th>金額</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    <h2>訂單總覽</h2>
+    <table id="orderTable">
+      <thead>
+        <tr>
+          <th>姓名</th>
+          <th>主餐</th>
+          <th>主餐口味</th>
+          <th>點心+口味</th>
+          <th>飲料</th>
+          <th>甜度</th>
+          <th>冰塊</th>
+          <th>套餐</th>
+          <th>金額</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
   <script src="script.js"></script>
 </body>

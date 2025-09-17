@@ -1,28 +1,4 @@
-// 你的 Google Apps Script Web App /exec
-const googleScriptURL =
-  'https://script.google.com/macros/s/AKfycbyrA_MVNiHvIlQ0nI-Dh1_ta3LlaDaqg5hLl23qXuQgT3fszsaPpyILSItrmceJ5tT3/exec';
-
-// 在 submit 事件裡，算好變數後用這段送出：
-// name, mainName, mainFlavor, snackFlavorPairs (陣列), drinkNames (陣列), comboName, price
-const payload = new URLSearchParams();
-payload.set('timestamp', new Date().toISOString());
-payload.set('姓名', name || '');
-payload.set('主餐', mainName || '');
-payload.set('口味', mainFlavor || '');                        // 主餐口味（可不選）
-payload.set('點心', (snackFlavorPairs.join(', ') || ''));     // 例：柳葉魚（原味）, 花枝丸（原味）
-payload.set('飲料', (drinkNames.join(', ') || ''));
-payload.set('套餐', comboName || '');
-payload.set('金額', String(price || 0));
-
-fetch(googleScriptURL, {
-  method: 'POST',
-  mode: 'no-cors',
-  headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
-  body: payload.toString()
-})
-  .then(() => console.log('Google Sheet 已寫入（URL-encoded）'))
-  .catch(err => console.error('送 Sheets 失敗：', err));
-/***** 你的 Google Apps Script Web App URL（/exec） *****/
+/***** 你的 Google Apps Script Web App URL（/exec）——只保留這一份！ *****/
 const googleScriptURL =
   'https://script.google.com/macros/s/AKfycbyrA_MVNiHvIlQ0nI-Dh1_ta3LlaDaqg5hLl23qXuQgT3fszsaPpyILSItrmceJ5tT3/exec';
 
@@ -190,6 +166,28 @@ function renderOrders() {
   tfoot.innerHTML = `<tr><td colspan="6" style="text-align:right;">總金額合計：</td><td>${sum}</td></tr>`;
 }
 
+/***** 新增：專門把資料送到 Google Sheet（URL-encoded） *****/
+function sendToGoogleSheet({ name, mainName, mainFlavor, snackFlavorPairs, drinkNames, comboName, price }) {
+  const payload = new URLSearchParams();
+  payload.set('timestamp', new Date().toISOString());
+  payload.set('姓名', name || '');
+  payload.set('主餐', mainName || '');
+  payload.set('口味', mainFlavor || '');                       // 主餐口味（可不選）
+  payload.set('點心', (snackFlavorPairs.join(', ') || ''));    // e.g. 柳葉魚（原味）, 花枝丸（原味）
+  payload.set('飲料', (drinkNames.join(', ') || ''));          // 飲料串列
+  payload.set('套餐', comboName || '');
+  payload.set('金額', String(price || 0));
+
+  console.log('payload to Sheet =', payload.toString());       // 除錯：F12 可看到
+
+  return fetch(googleScriptURL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+    body: payload.toString()
+  });
+}
+
 /***** 初始化 *****/
 document.addEventListener('DOMContentLoaded', () => {
   genRadio(mainDishList, 'mainDish', 'mainDish', () => { showMainFlavor(); updateTotal(); });
@@ -261,28 +259,11 @@ document.addEventListener('DOMContentLoaded', () => {
     saveOrders(orders);
     renderOrders();
 
-    // —— 寫入 Google Sheet（URL-encoded） —— 
-    const payload = new URLSearchParams();
-    payload.set('timestamp', new Date().toISOString());
-    payload.set('姓名', name || '');
-    payload.set('主餐', mainName || '');
-    payload.set('口味', mainFlavor || '');
-    payload.set('點心', (snackFlavorPairs.join(', ') || ''));
-    payload.set('飲料', (drinkNames.join(', ') || ''));
-    payload.set('套餐', comboName || '');
-    payload.set('金額', String(price || 0));
-
+    // —— 寫入 Google Sheet —— 
     try {
-      await fetch(googleScriptURL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
-        body: payload.toString()
-      });
-      // alert('已記錄到 Google Sheet！');
+      await sendToGoogleSheet({ name, mainName, mainFlavor, snackFlavorPairs, drinkNames, comboName, price });
     } catch (err) {
       console.error('送 Sheets 失敗：', err);
-      // alert('寫入失敗，請稍後再試');
     }
 
     // 重設表單
@@ -293,4 +274,3 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.disabled = false; btn.textContent = '送出訂單';
   });
 });
-

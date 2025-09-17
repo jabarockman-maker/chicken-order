@@ -1,44 +1,40 @@
 body {
-  font-family: "Segoe UI", system-ui, -apple-system, "Noto Sans TC", sans-serif;
-  background-color: #fff7e6;
+  font-family: "Segoe UI", "Noto Sans TC", sans-serif;
+  background: #fff7e6;
   color: #333;
   margin: 0;
   padding: 20px;
 }
 .container {
-  max-width: 1000px;
+  max-width: 900px;
   margin: auto;
   padding: 20px;
   background: #fff;
-  border-radius: 12px;
+  border-radius: 10px;
   box-shadow: 0 0 12px rgba(0,0,0,0.1);
 }
 h1, h2, h3 { color: #cc5500; margin: 10px 0; }
-.form-row { display: flex; flex-wrap: wrap; gap: 30px; margin-bottom: 18px; }
-.form-group { flex: 1; min-width: 280px; }
-label { display: block; margin: 8px 0; }
-input[type="text"] { width: 100%; padding: 6px; font-size: 16px; }
-#orderTable { width: 100%; border-collapse: collapse; margin-top: 12px; }
-#orderTable th, #orderTable td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+.form-row { margin: 12px 0; }
+.form-group { margin: 14px 0; }
+label { display: block; margin: 6px 0; }
+input[type="text"] { padding: 6px; font-size: 15px; width: 200px; }
 button {
-  padding: 10px 18px; background-color: #ff9900; color: white; border: none;
-  border-radius: 6px; font-size: 16px; cursor: pointer;
+  padding: 10px 16px; background: #ff9900; color: white; border: none;
+  border-radius: 6px; cursor: pointer; font-size: 15px;
 }
-button:hover { background-color: #cc7a00; }
-button.danger { background: #e53935; }
+button:hover { background:#cc7a00; }
+button.danger { background:#e53935; }
 button.danger:hover { background:#c62828; }
-.small-note { color:#666; font-size: 13px; margin-top:4px; }
+
+#orderTable { width: 100%; border-collapse: collapse; margin-top: 12px; }
+#orderTable th, #orderTable td {
+  border: 1px solid #ddd; padding: 8px; text-align: center;
+}
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 8px 16px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
 }
-.snack-item {
-  display: flex; align-items: center; gap: 8px; background:#fffaf2; border:1px solid #f2d4ad;
-  border-radius:8px; padding:6px 8px;
-}
-.snack-item select, .flavor-select {
-  padding: 4px 6px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px;
-}
-.inline { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.snack-item { display:flex; align-items:center; gap:6px; }
+.flavor-select { padding:3px 5px; }

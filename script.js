@@ -166,19 +166,19 @@ function renderOrders() {
   tfoot.innerHTML = `<tr><td colspan="6" style="text-align:right;">總金額合計：</td><td>${sum}</td></tr>`;
 }
 
-/***** 新增：專門把資料送到 Google Sheet（URL-encoded） *****/
+/***** ⛳ 這段就是「會寫進 Google Sheet」的關鍵：URL-encoded 送出 *****/
 function sendToGoogleSheet({ name, mainName, mainFlavor, snackFlavorPairs, drinkNames, comboName, price }) {
   const payload = new URLSearchParams();
   payload.set('timestamp', new Date().toISOString());
   payload.set('姓名', name || '');
   payload.set('主餐', mainName || '');
   payload.set('口味', mainFlavor || '');                       // 主餐口味（可不選）
-  payload.set('點心', (snackFlavorPairs.join(', ') || ''));    // e.g. 柳葉魚（原味）, 花枝丸（原味）
-  payload.set('飲料', (drinkNames.join(', ') || ''));          // 飲料串列
+  payload.set('點心', (snackFlavorPairs.join(', ') || ''));    // 例：柳葉魚（原味）, 花枝丸（原味）
+  payload.set('飲料', (drinkNames.join(', ') || ''));          // ✅ 飲料在這裡
   payload.set('套餐', comboName || '');
   payload.set('金額', String(price || 0));
 
-  console.log('payload to Sheet =', payload.toString());       // 除錯：F12 可看到
+  console.log('payload to Sheet =', payload.toString());       // F12 可看到
 
   return fetch(googleScriptURL, {
     method: 'POST',
@@ -259,7 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
     saveOrders(orders);
     renderOrders();
 
-    // —— 寫入 Google Sheet —— 
+    // —— 寫入 Google Sheet（真正送出的地方） —— 
     try {
       await sendToGoogleSheet({ name, mainName, mainFlavor, snackFlavorPairs, drinkNames, comboName, price });
     } catch (err) {

@@ -1,40 +1,43 @@
 body {
-  font-family: "Segoe UI", "Noto Sans TC", sans-serif;
-  background: #fff7e6;
+  font-family: Arial, sans-serif;
+  background: #fff6e9;
   color: #333;
-  margin: 0;
-  padding: 20px;
 }
 .container {
-  max-width: 900px;
+  width: 90%;
+  max-width: 800px;
   margin: auto;
-  padding: 20px;
   background: #fff;
+  padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 0 12px rgba(0,0,0,0.1);
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
-h1, h2, h3 { color: #cc5500; margin: 10px 0; }
-.form-row { margin: 12px 0; }
-.form-group { margin: 14px 0; }
-label { display: block; margin: 6px 0; }
-input[type="text"] { padding: 6px; font-size: 15px; width: 200px; }
+h1 { color: #d35400; }
+h2 { color: #e67e22; margin-top: 20px; }
+h3 { color: #c0392b; }
 button {
-  padding: 10px 16px; background: #ff9900; color: white; border: none;
-  border-radius: 6px; cursor: pointer; font-size: 15px;
+  background: orange;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  color: #fff;
+  font-size: 16px;
+  border-radius: 5px;
 }
-button:hover { background:#cc7a00; }
-button.danger { background:#e53935; }
-button.danger:hover { background:#c62828; }
-
-#orderTable { width: 100%; border-collapse: collapse; margin-top: 12px; }
-#orderTable th, #orderTable td {
-  border: 1px solid #ddd; padding: 8px; text-align: center;
+button:hover {
+  background: #e67e22;
 }
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 8px;
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
 }
-.snack-item { display:flex; align-items:center; gap:6px; }
-.flavor-select { padding:3px 5px; }
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+th {
+  background: #f39c12;
+  color: #fff;
+}

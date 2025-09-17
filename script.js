@@ -1,102 +1,59 @@
-const sheetUrl = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
+const scriptURL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
+let orders = JSON.parse(localStorage.getItem("orders") || "[]");
 
-// 訂單紀錄 localStorage
-let orders = JSON.parse(localStorage.getItem("orders")) || [];
-
-// 即時計算金額 & 找零
-function calculateTotal() {
-  let total = 0;
-
-  // 主餐
-  const mainDish = document.querySelector("input[name='mainDish']:checked");
-  if (mainDish) {
-    const qty = parseInt(document.getElementById("mainQty").value) || 0;
-    const price = parseInt(mainDish.value.match(/\d+/)[0]);
-    total += qty * price;
-  }
-
-  // 點心
-  document.querySelectorAll(".snack:checked").forEach((snack, i) => {
-    const qty = parseInt(document.querySelectorAll(".snack-qty")[i].value) || 0;
-    const price = parseInt(snack.value.match(/\d+/)[0]);
-    total += qty * price;
-  });
-
-  // 飲料
-  document.querySelectorAll(".drink:checked").forEach((drink, i) => {
-    const qty = parseInt(document.querySelectorAll(".drink-qty")[i].value) || 0;
-    const price = parseInt(drink.value.match(/\d+/)[0]);
-    total += qty * price;
-  });
-
-  // 套餐
-  const setMeal = document.querySelector("input[name='setMeal']:checked");
-  if (setMeal) {
-    const price = parseInt(setMeal.value.match(/\d+/)[0]);
-    total += price;
-  }
-
-  document.getElementById("totalAmount").textContent = total;
-
-  // 找零
-  const paid = parseInt(document.getElementById("paidAmount").value) || 0;
-  document.getElementById("changeAmount").value = paid - total >= 0 ? paid - total : 0;
-}
-document.querySelectorAll("input, select").forEach(el => {
-  el.addEventListener("change", calculateTotal);
-});
-
-// 送出訂單
-document.getElementById("orderForm").addEventListener("submit", e => {
-  e.preventDefault();
-
-  const name = document.getElementById("name").value;
-  const total = document.getElementById("totalAmount").textContent;
-  const paid = document.getElementById("paidAmount").value;
-  const change = document.getElementById("changeAmount").value;
-  const method = document.getElementById("paymentMethod").value;
-
-  const order = { name, total, paid, change, method, status: method };
-  orders.push(order);
-  localStorage.setItem("orders", JSON.stringify(orders));
-
-  renderOrders();
-
-  // 發送到 Google Sheet
-  fetch(sheetUrl, {
-    method: "POST",
-    body: JSON.stringify(order)
-  });
-});
-
-// 渲染訂單總覽
 function renderOrders() {
   const tbody = document.querySelector("#orderTable tbody");
   tbody.innerHTML = "";
   orders.forEach((o, i) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${o.name}</td>
-      <td>-</td>
-      <td>-</td>
-      <td>-</td>
-      <td>-</td>
-      <td>${o.total}</td>
-      <td>${o.method}</td>
-      <td>${o.paid}</td>
-      <td>${o.change}</td>
-      <td>${o.status}</td>
-      <td><button onclick="markPaid(${i})">已付款</button></td>
-    `;
+      <td>${o.name}</td><td>${o.mainDish}</td><td>${o.mainDishFlavor}</td><td>${o.snacks}</td>
+      <td>${o.drinks}</td><td>${o.sugar}</td><td>${o.ice}</td><td>${o.set}</td><td>${o.setFlavor}</td><td>${o.setDrink}</td>
+      <td>${o.total}</td><td>${o.method}</td><td>${o.paid}</td><td>${o.change}</td>
+      <td>${o.payTime}</td><td>${o.changeTime}</td><td>${o.status}</td>
+      <td>
+        <button onclick="updateStatus(${i}, '已付款')">已付款</button>
+        <button onclick="updateStatus(${i}, '未付款')">未付款</button>
+      </td>`;
     tbody.appendChild(tr);
   });
 }
+renderOrders();
 
-function markPaid(i) {
-  orders[i].status = "已付款";
+function updateStatus(i, status) {
+  orders[i].status = status;
+  orders[i].payTime = status === "已付款" ? new Date().toLocaleString() : "";
   localStorage.setItem("orders", JSON.stringify(orders));
   renderOrders();
+  fetch(scriptURL, { method: "POST", body: JSON.stringify({ action: "updateStatus", row: orders[i].row, status }) });
 }
 
-// 頁面載入恢復
-renderOrders();
+document.getElementById("orderForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const name = document.getElementById("name").value;
+  const mainDish = document.querySelector("input[name='mainDish']:checked")?.value || "";
+  const mainFlavor = document.getElementById("mainFlavor").value;
+  const snacks = Array.from(document.querySelectorAll(".snack:checked")).map((s, i) => `${s.value} ×${document.querySelectorAll(".snackQty")[i].value}（${document.querySelectorAll(".snackFlavor")[i].value}）`).join(", ");
+  const drinks = Array.from(document.querySelectorAll(".drink:checked")).map((d, i) => `${d.value} ×${document.querySelectorAll(".drinkQty")[i].value}`).join(", ");
+  const sugar = document.querySelector(".drinkSugar")?.value || "";
+  const ice = document.querySelector(".drinkIce")?.value || "";
+  const set = document.querySelector("input[name='set']:checked")?.value || "";
+  const setDrink = document.querySelector(".setDrink")?.value || "";
+  const setFlavor = ""; // 可擴充
+
+  const total = parseInt(document.getElementById("totalAmount").textContent) || 0;
+  const method = document.getElementById("paymentMethod").value;
+  const paid = parseInt(document.getElementById("paidAmount").value) || 0;
+  const change = parseInt(document.getElementById("changeAmount").value) || 0;
+  const status = paid === total ? "已付款" : paid > 0 ? "待找零" : "未付款";
+
+  const order = { name, mainDish, mainDishFlavor: mainFlavor, snacks, drinks, sugar, ice, set, setFlavor, setDrink, total, method, paid, change, payTime: "", changeTime: "", status };
+
+  orders.push(order);
+  localStorage.setItem("orders", JSON.stringify(orders));
+  renderOrders();
+
+  fetch(scriptURL, { method: "POST", body: JSON.stringify(order) });
+
+  e.target.reset();
+});

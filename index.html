@@ -1,79 +1,71 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
   <title>雞排訂購單</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <h1>🐔 雞排訂購單</h1>
-    <form id="orderForm">
-      <label>姓名：
-        <input type="text" id="name" required />
-      </label>
+  <h1>🐔 雞排訂購單</h1>
 
-      <h2>主餐（擇一）</h2>
-      <div id="mainDish"></div>
-      <div id="mainFlavorHost"></div>
+  <form id="orderForm">
+    <label>姓名：
+      <input type="text" id="name" required>
+    </label>
 
-      <h2>點心（可複選）</h2>
-      <div id="snacks"></div>
+    <!-- 主餐 -->
+    <h2>主餐（擇一）</h2>
+    <div id="mainDish"></div>
+    <div id="mainFlavorHost"></div>
 
-      <h2>飲料（可複選）</h2>
-      <div id="drinks"></div>
-      <div id="drinkOptions" class="drink-options">
-        <label>甜度：
-          <select id="sugarLevel">
-            <option value="正常">正常</option>
-            <option value="少糖">少糖</option>
-            <option value="半糖">半糖</option>
-            <option value="微糖">微糖</option>
-            <option value="無糖">無糖</option>
-          </select>
-        </label>
-        <label>冰塊：
-          <select id="iceLevel">
-            <option value="正常">正常</option>
-            <option value="少冰">少冰</option>
-            <option value="去冰">去冰</option>
-            <option value="熱">熱</option>
-          </select>
-        </label>
-      </div>
+    <!-- 點心 -->
+    <h2>點心（可複選）</h2>
+    <div id="snacks"></div>
 
-      <h2>套餐（擇一，可不選）</h2>
-      <div id="combo"></div>
-      <div id="comboFlavorHost"></div>
+    <!-- 飲料 -->
+    <h2>飲料（可複選）</h2>
+    <div id="drinks"></div>
 
-      <h2>總金額：<span id="totalPrice">0</span> 元</h2>
-      <button type="submit" id="submitBtn">送出訂單</button>
-    </form>
+    <!-- 套餐 -->
+    <h2>套餐（擇一，可不選）</h2>
+    <div id="combo"></div>
+    <div id="comboFlavorHost"></div>
 
-    <hr>
-    <h2>📋 訂單總覽</h2>
-    <table id="orderTable">
-      <thead>
-        <tr>
-          <th>姓名</th>
-          <th>主餐</th>
-          <th>主餐口味</th>
-          <th>點心+口味</th>
-          <th>飲料</th>
-          <th>甜度</th>
-          <th>冰塊</th>
-          <th>套餐</th>
-          <th>套餐口味</th>
-          <th>金額</th>
-          <th>付款狀態</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-      <tfoot></tfoot>
-    </table>
-    <button id="clearOrders">清除所有訂單（本機）</button>
-  </div>
+    <!-- 總金額 -->
+    <p>總金額：<span id="totalPrice">0</span> 元</p>
+    <button type="submit" id="submitBtn">送出訂單</button>
+  </form>
+
+  <hr>
+
+  <!-- 訂單總覽 -->
+  <h2>🧾 訂單總覽</h2>
+  <table id="orderTable" border="1">
+    <thead>
+      <tr>
+        <th>姓名</th>
+        <th>主餐</th>
+        <th>主餐口味</th>
+        <th>點心＋口味</th>
+        <th>飲料</th>
+        <th>甜度</th>
+        <th>冰塊</th>
+        <th>套餐</th>
+        <th>套餐口味</th>
+        <th>金額</th>
+        <th>付款金額</th>
+        <th>付款方式</th>
+        <th>找零</th>
+        <th>付款狀態</th>
+        <th>付款時間</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+    <tfoot></tfoot>
+  </table>
+
+  <button id="clearOrders">清除所有訂單（本機）</button>
+
   <script src="script.js"></script>
 </body>
 </html>

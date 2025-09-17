@@ -1,8 +1,8 @@
-/***** 你的 Google Apps Script Web App URL（/exec）——只保留這一份！ *****/
+/***** 你的 Google Apps Script Web App URL（/exec） *****/
 const googleScriptURL =
   'https://script.google.com/macros/s/AKfycbyrA_MVNiHvIlQ0nI-Dh1_ta3LlaDaqg5hLl23qXuQgT3fszsaPpyILSItrmceJ5tT3/exec';
 
-/***** 菜單與價格（口味皆不加價，含海苔、起司） *****/
+/***** 菜單與價格（口味皆不加價） *****/
 const mainDishList = [
   { name: "脆皮雞排", price: 85 },
   { name: "無骨雞塊", price: 70 },
@@ -50,7 +50,7 @@ const comboList = [
   { name: "3號套餐：腿排 + 薯條 + 飲料", price: 120 }
 ];
 
-/***** 本機紀錄（讓頁面可看歷史） *****/
+/***** 本機紀錄 *****/
 const loadOrders = () => JSON.parse(localStorage.getItem('orders') || '[]');
 const saveOrders = (orders) => localStorage.setItem('orders', JSON.stringify(orders));
 
@@ -76,7 +76,7 @@ function buildFlavorSelect(id) {
   flavorList.forEach((f, idx) => {
     const opt = document.createElement('option');
     opt.value = String(idx);
-    opt.textContent = f.name; // 不顯示加價
+    opt.textContent = f.name;
     sel.appendChild(opt);
   });
   sel.addEventListener('change', updateTotal);
@@ -87,12 +87,27 @@ function showMainFlavor() {
   const host = document.getElementById('mainFlavorHost');
   host.innerHTML = '';
   const selected = document.querySelector('input[name="mainDish"]:checked');
-  if (!selected) return; // 口味可不選
+  if (!selected) return;
   const box = document.createElement('div');
   box.className = 'inline';
   const label = document.createElement('label');
   label.textContent = '主餐口味：';
   const sel = buildFlavorSelect('mainFlavor');
+  box.append(label, sel);
+  host.appendChild(box);
+  sel.focus();
+}
+
+function showComboFlavor() {
+  const host = document.getElementById('comboFlavorHost');
+  host.innerHTML = '';
+  const selected = document.querySelector('input[name="combo"]:checked');
+  if (!selected) return;
+  const box = document.createElement('div');
+  box.className = 'inline';
+  const label = document.createElement('label');
+  label.textContent = '套餐口味：';
+  const sel = buildFlavorSelect('comboFlavor');
   box.append(label, sel);
   host.appendChild(box);
   sel.focus();
@@ -121,7 +136,7 @@ function genCheckboxSnacks() {
   });
 }
 
-/***** 計價（口味 0 元，不影響總額） *****/
+/***** 計價 *****/
 function calcTotal() {
   let total = 0;
   const mainIdx = document.querySelector('input[name="mainDish"]:checked')?.value;
@@ -159,26 +174,28 @@ function renderOrders() {
       <td>${o.snacksWithFlavors || ''}</td>
       <td>${o.drinks || ''}</td>
       <td>${o.combo || ''}</td>
+      <td>${o.comboFlavor || ''}</td>
       <td>${o.price}</td>
     `;
     tbody.appendChild(tr);
   });
-  tfoot.innerHTML = `<tr><td colspan="6" style="text-align:right;">總金額合計：</td><td>${sum}</td></tr>`;
+  tfoot.innerHTML = `<tr><td colspan="7" style="text-align:right;">總金額合計：</td><td>${sum}</td></tr>`;
 }
 
-/***** ⛳ 這段就是「會寫進 Google Sheet」的關鍵：URL-encoded 送出 *****/
-function sendToGoogleSheet({ name, mainName, mainFlavor, snackFlavorPairs, drinkNames, comboName, price }) {
+/***** 寫進 Google Sheet *****/
+function sendToGoogleSheet({ name, mainName, mainFlavor, snackFlavorPairs, drinkNames, comboName, comboFlavor, price }) {
   const payload = new URLSearchParams();
   payload.set('timestamp', new Date().toISOString());
   payload.set('姓名', name || '');
   payload.set('主餐', mainName || '');
-  payload.set('口味', mainFlavor || '');                       // 主餐口味（可不選）
-  payload.set('點心', (snackFlavorPairs.join(', ') || ''));    // 例：柳葉魚（原味）, 花枝丸（原味）
-  payload.set('飲料', (drinkNames.join(', ') || ''));          // ✅ 飲料在這裡
+  payload.set('主餐口味', mainFlavor || '');
+  payload.set('點心+口味', (snackFlavorPairs.join(', ') || ''));
+  payload.set('飲料', (drinkNames.join(', ') || ''));
   payload.set('套餐', comboName || '');
+  payload.set('套餐口味', comboFlavor || '');
   payload.set('金額', String(price || 0));
 
-  console.log('payload to Sheet =', payload.toString());       // F12 可看到
+  console.log('payload to Sheet =', payload.toString());
 
   return fetch(googleScriptURL, {
     method: 'POST',
@@ -202,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   genCheckboxSnacks();
-  genRadio(comboList, 'combo', 'combo', updateTotal);
+  genRadio(comboList, 'combo', 'combo', () => { showComboFlavor(); updateTotal(); });
 
   renderOrders();
   updateTotal();
@@ -242,6 +259,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const comboIdx = document.querySelector('input[name="combo"]:checked')?.value;
     const comboName = comboIdx !== undefined ? comboList[Number(comboIdx)].name : '';
+    const comboFlavorSel = document.getElementById('comboFlavor');
+    const comboFlavor = comboFlavorSel ? flavorList[Number(comboFlavorSel.value)].name : '';
 
     const price = calcTotal();
 
@@ -254,14 +273,15 @@ document.addEventListener('DOMContentLoaded', () => {
       snacksWithFlavors: snackFlavorPairs.join('、'),
       drinks: drinkNames.join('、'),
       combo: comboName,
+      comboFlavor,
       price
     });
     saveOrders(orders);
     renderOrders();
 
-    // —— 寫入 Google Sheet（真正送出的地方） —— 
+    // —— 寫入 Google Sheet —— 
     try {
-      await sendToGoogleSheet({ name, mainName, mainFlavor, snackFlavorPairs, drinkNames, comboName, price });
+      await sendToGoogleSheet({ name, mainName, mainFlavor, snackFlavorPairs, drinkNames, comboName, comboFlavor, price });
     } catch (err) {
       console.error('送 Sheets 失敗：', err);
     }
@@ -269,6 +289,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 重設表單
     e.target.reset();
     document.getElementById('mainFlavorHost').innerHTML = '';
+    document.getElementById('comboFlavorHost').innerHTML = '';
     updateTotal();
 
     btn.disabled = false; btn.textContent = '送出訂單';

@@ -1,222 +1,43 @@
-// Google Apps Script Web App URL
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyrA_MVNiHvIlQ0nI-Dh1_ta3LlaDaqg5hLl23qXuQgT3fszsaPpyILSItrmceJ5tT3/exec";
-
-// 菜單資料
-const mains = [
-  { name: "脆皮雞排", price: 85 },
-  { name: "無骨雞塊", price: 70 },
-  { name: "無骨雞腿排", price: 85 },
-  { name: "鮮魷+白", price: 70 },
-  { name: "無敵雞塊(大)", price: 120 }
-];
-
-const sides = [
-  { name: "柳葉魚", price: 39 },
-  { name: "脆皮七里香", price: 30 },
-  { name: "脆皮雞心", price: 30 },
-  { name: "脆皮雞翅", price: 30 },
-  { name: "脆薯(大份)", price: 50 },
-  { name: "脆薯(小份)", price: 30 },
-  { name: "貢丸", price: 30 },
-  { name: "噴波起司球", price: 30 },
-  { name: "起司條(2入)", price: 30 },
-  { name: "美式洋蔥圈", price: 30 },
-  { name: "包心小湯圓", price: 30 },
-  { name: "甜不辣(大份)", price: 50 },
-  { name: "甜不辣(小份)", price: 20 },
-  { name: "QQ地瓜球", price: 20 },
-  { name: "銀絲卷", price: 20 },
-  { name: "煉乳銀絲卷", price: 25 },
-  { name: "梅子地瓜(大)", price: 50 },
-  { name: "梅子地瓜(小)", price: 20 },
-  { name: "米腸", price: 20 },
-  { name: "花枝丸(大份)", price: 50 },
-  { name: "花枝丸(小份)", price: 20 },
-  { name: "米血糕", price: 20 },
-  { name: "百頁豆腐", price: 20 },
-  { name: "薯薯條", price: 20 },
-  { name: "芋頭餅", price: 20 },
-  { name: "四季豆", price: 30 },
-  { name: "杏包菇", price: 30 },
-  { name: "花椰菜", price: 30 },
-  { name: "鮮香菇", price: 30 },
-  { name: "玉米筍", price: 30 },
-  { name: "炸茄子", price: 30 }
-];
-
-const drinks = [
-  { name: "冬瓜紅茶", price: 10 },
-  { name: "泡沫綠茶", price: 10 },
-  { name: "可樂", price: 20 },
-  { name: "雪碧", price: 20 }
-];
-
-const sets = [
-  { name: "1號套餐：雞排+薯條+飲料", price: 120 },
-  { name: "3號套餐：腿排+薯條+飲料", price: 120 }
-];
-
-// 口味（統一）
-const flavors = ["不選", "原味", "胡椒", "辣味", "梅粉", "綜合", "特調", "咖哩", "海苔", "起司"];
-
-// 渲染選單
-function renderOptions() {
-  const mainsDiv = document.getElementById("mains");
-  mains.forEach((item, idx) => {
-    const div = document.createElement("div");
-    div.innerHTML = `
-      <label>
-        <input type="radio" name="main" value="${item.name}" data-price="${item.price}">
-        ${item.name} ($${item.price})
-      </label>
-      <select name="mainFlavor-${idx}">
-        ${flavors.map(f => `<option value="${f}">${f}</option>`).join("")}
-      </select>
-    `;
-    mainsDiv.appendChild(div);
-  });
-
-  const sidesDiv = document.getElementById("sides");
-  sides.forEach((item, idx) => {
-    const div = document.createElement("div");
-    div.innerHTML = `
-      <label>
-        <input type="checkbox" name="side" value="${item.name}" data-price="${item.price}">
-        ${item.name} ($${item.price})
-      </label>
-      <select name="sideFlavor-${idx}">
-        ${flavors.map(f => `<option value="${f}">${f}</option>`).join("")}
-      </select>
-    `;
-    sidesDiv.appendChild(div);
-  });
-
-  const drinksDiv = document.getElementById("drinks");
-  drinks.forEach((item, idx) => {
-    const div = document.createElement("div");
-    div.innerHTML = `
-      <label>
-        <input type="checkbox" name="drink" value="${item.name}" data-price="${item.price}">
-        ${item.name} ($${item.price})
-      </label>
-    `;
-    drinksDiv.appendChild(div);
-  });
-
-  const setsDiv = document.getElementById("sets");
-  sets.forEach((item, idx) => {
-    const div = document.createElement("div");
-    div.innerHTML = `
-      <label>
-        <input type="radio" name="set" value="${item.name}" data-price="${item.price}">
-        ${item.name} ($${item.price})
-      </label>
-      <select name="setDrink-${idx}">
-        <option value="">請選飲料</option>
-        ${drinks.map(d => `<option value="${d.name}">${d.name}</option>`).join("")}
-      </select>
-    `;
-    setsDiv.appendChild(div);
-  });
+body {
+  font-family: Arial, sans-serif;
+  background: #fff6e9;
+  color: #333;
 }
-
-// 金額計算 & 送出
-function calcTotal() {
-  let total = 0;
-  document.querySelectorAll("input[type=radio]:checked, input[type=checkbox]:checked")
-    .forEach(el => {
-      total += parseInt(el.dataset.price);
-    });
-  document.getElementById("total").innerText = total;
-  return total;
+.container {
+  width: 90%;
+  max-width: 800px;
+  margin: auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
-
-function collectOrder() {
-  const name = document.getElementById("name").value.trim();
-  if (!name) {
-    alert("請輸入姓名！");
-    return null;
-  }
-
-  let main = "", mainFlavor = "";
-  document.querySelectorAll("input[name=main]").forEach((el, idx) => {
-    if (el.checked) {
-      main = el.value;
-      mainFlavor = document.querySelector(`select[name=mainFlavor-${idx}]`).value;
-    }
-  });
-
-  let sidesArr = [];
-  document.querySelectorAll("input[name=side]").forEach((el, idx) => {
-    if (el.checked) {
-      const flavor = document.querySelector(`select[name=sideFlavor-${idx}]`).value;
-      sidesArr.push(`${el.value} (${flavor})`);
-    }
-  });
-
-  let drinksArr = [];
-  document.querySelectorAll("input[name=drink]").forEach(el => {
-    if (el.checked) drinksArr.push(el.value);
-  });
-
-  const sugar = document.getElementById("sugar").value;
-  const ice = document.getElementById("ice").value;
-
-  let set = "", setDrink = "";
-  document.querySelectorAll("input[name=set]").forEach((el, idx) => {
-    if (el.checked) {
-      set = el.value;
-      setDrink = document.querySelector(`select[name=setDrink-${idx}]`).value;
-      if (!setDrink) {
-        alert("套餐必須選飲料！");
-        set = "";
-      }
-    }
-  });
-
-  const total = calcTotal();
-
-  return {
-    name, main, mainFlavor,
-    sides: sidesArr.join(", "),
-    drinks: drinksArr.join(", "),
-    sugar, ice, set, setDrink, total
-  };
+h1 { color: #d35400; }
+h2 { color: #e67e22; margin-top: 20px; }
+h3 { color: #c0392b; }
+button {
+  background: orange;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  color: #fff;
+  font-size: 16px;
+  border-radius: 5px;
 }
-
-function appendOrderRow(order) {
-  const tbody = document.querySelector("#orderTable tbody");
-  const tr = document.createElement("tr");
-  tr.innerHTML = `
-    <td>${order.name}</td>
-    <td>${order.main}</td>
-    <td>${order.mainFlavor}</td>
-    <td>${order.sides}</td>
-    <td>${order.drinks}</td>
-    <td>${order.sugar}</td>
-    <td>${order.ice}</td>
-    <td>${order.set} ${order.setDrink}</td>
-    <td>${order.total}</td>
-  `;
-  tbody.appendChild(tr);
+button:hover {
+  background: #e67e22;
 }
-
-function sendToSheet(order) {
-  fetch(SCRIPT_URL, {
-    method: "POST",
-    body: new URLSearchParams(order)
-  })
-    .then(res => res.json())
-    .then(res => console.log("成功寫入表單", res))
-    .catch(err => console.error("寫入失敗", err));
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
 }
-
-document.addEventListener("change", calcTotal);
-document.getElementById("submitOrder").addEventListener("click", () => {
-  const order = collectOrder();
-  if (!order) return;
-  appendOrderRow(order);
-  sendToSheet(order);
-});
-
-renderOptions();
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+th {
+  background: #f39c12;
+  color: #fff;
+}

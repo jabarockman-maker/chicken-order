@@ -1,59 +1,71 @@
-const scriptURL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
-let orders = JSON.parse(localStorage.getItem("orders") || "[]");
+const scriptURL = "你的Google Apps Script Web App URL";
 
-function renderOrders() {
-  const tbody = document.querySelector("#orderTable tbody");
-  tbody.innerHTML = "";
-  orders.forEach((o, i) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${o.name}</td><td>${o.mainDish}</td><td>${o.mainDishFlavor}</td><td>${o.snacks}</td>
-      <td>${o.drinks}</td><td>${o.sugar}</td><td>${o.ice}</td><td>${o.set}</td><td>${o.setFlavor}</td><td>${o.setDrink}</td>
-      <td>${o.total}</td><td>${o.method}</td><td>${o.paid}</td><td>${o.change}</td>
-      <td>${o.payTime}</td><td>${o.changeTime}</td><td>${o.status}</td>
-      <td>
-        <button onclick="updateStatus(${i}, '已付款')">已付款</button>
-        <button onclick="updateStatus(${i}, '未付款')">未付款</button>
-      </td>`;
-    tbody.appendChild(tr);
+// 計算總金額
+function calculateTotal() {
+  let total = 0;
+
+  // 主餐
+  document.querySelectorAll("#main-dishes input[type=radio]:checked").forEach(r => {
+    total += Number(r.dataset.price);
   });
-}
-renderOrders();
 
-function updateStatus(i, status) {
-  orders[i].status = status;
-  orders[i].payTime = status === "已付款" ? new Date().toLocaleString() : "";
-  localStorage.setItem("orders", JSON.stringify(orders));
-  renderOrders();
-  fetch(scriptURL, { method: "POST", body: JSON.stringify({ action: "updateStatus", row: orders[i].row, status }) });
+  // 點心
+  document.querySelectorAll("#snacks input[type=checkbox]:checked").forEach(c => {
+    total += Number(c.dataset.price);
+  });
+
+  // 飲料
+  document.querySelectorAll("input[type=checkbox][value^=冬瓜], input[type=checkbox][value^=泡沫], input[type=checkbox][value^=可樂], input[type=checkbox][value^=雪碧]").forEach(d => {
+    if (d.checked) total += Number(d.dataset.price);
+  });
+
+  // 套餐
+  document.querySelectorAll("input[name=set]:checked").forEach(s => {
+    total += Number(s.dataset.price);
+  });
+
+  document.getElementById("total").textContent = total;
+  return total;
 }
 
-document.getElementById("orderForm").addEventListener("submit", e => {
-  e.preventDefault();
+document.querySelectorAll("input, select").forEach(el => {
+  el.addEventListener("change", calculateTotal);
+});
+
+document.getElementById("submitBtn").addEventListener("click", () => {
   const name = document.getElementById("name").value;
-  const mainDish = document.querySelector("input[name='mainDish']:checked")?.value || "";
-  const mainFlavor = document.getElementById("mainFlavor").value;
-  const snacks = Array.from(document.querySelectorAll(".snack:checked")).map((s, i) => `${s.value} ×${document.querySelectorAll(".snackQty")[i].value}（${document.querySelectorAll(".snackFlavor")[i].value}）`).join(", ");
-  const drinks = Array.from(document.querySelectorAll(".drink:checked")).map((d, i) => `${d.value} ×${document.querySelectorAll(".drinkQty")[i].value}`).join(", ");
-  const sugar = document.querySelector(".drinkSugar")?.value || "";
-  const ice = document.querySelector(".drinkIce")?.value || "";
-  const set = document.querySelector("input[name='set']:checked")?.value || "";
-  const setDrink = document.querySelector(".setDrink")?.value || "";
-  const setFlavor = ""; // 可擴充
+  const method = document.getElementById("method").value;
+  const paid = document.getElementById("paid").value;
+  const change = document.getElementById("change").value;
+  const status = document.getElementById("status").textContent;
+  const total = calculateTotal();
 
-  const total = parseInt(document.getElementById("totalAmount").textContent) || 0;
-  const method = document.getElementById("paymentMethod").value;
-  const paid = parseInt(document.getElementById("paidAmount").value) || 0;
-  const change = parseInt(document.getElementById("changeAmount").value) || 0;
-  const status = paid === total ? "已付款" : paid > 0 ? "待找零" : "未付款";
+  const timestamp = new Date().toLocaleString();
 
-  const order = { name, mainDish, mainDishFlavor: mainFlavor, snacks, drinks, sugar, ice, set, setFlavor, setDrink, total, method, paid, change, payTime: "", changeTime: "", status };
+  const row = [
+    timestamp, name,
+    "-", "-", "-", "-", "-", "-", "-", "-", "-", total, method, paid, change, "", "", status
+  ];
 
-  orders.push(order);
-  localStorage.setItem("orders", JSON.stringify(orders));
-  renderOrders();
+  // 新增到表格
+  const tbody = document.querySelector("#orderTable tbody");
+  const tr = document.createElement("tr");
+  row.forEach(v => {
+    const td = document.createElement("td");
+    td.textContent = v;
+    tr.appendChild(td);
+  });
+  tbody.appendChild(tr);
 
-  fetch(scriptURL, { method: "POST", body: JSON.stringify(order) });
+  // 傳到 Google Sheet
+  fetch(scriptURL, {
+    method: "POST",
+    body: JSON.stringify({
+      name, total, method, paid, change, status
+    })
+  }).then(r => console.log("已送出到 Google Sheet"));
+});
 
-  e.target.reset();
+document.getElementById("clearBtn").addEventListener("click", () => {
+  location.reload();
 });

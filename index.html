@@ -1,125 +1,175 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <title>🐔 雞排訂購單</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="header">
-    <img src="chicken.png" class="chicken" alt="小雞">
-    <h1>🐔 雞排訂購單</h1>
-  </header>
+  <h1>🐔 雞排訂購單</h1>
 
-  <form id="orderForm">
-    <label>姓名：<input type="text" id="name" required></label>
+  <label>姓名：</label>
+  <input type="text" id="name"><br><br>
 
-    <h2>主餐</h2>
-    <div class="menu-item">
-      <input type="radio" name="mainDish" value="脆皮雞排">
-      脆皮雞排 (85)
-      <input type="number" class="qty" id="mainQty" min="0" value="0">
-      <select id="mainFlavor">
-        <option>胡椒</option><option>原味</option><option>辣味</option><option>特調</option>
-      </select>
-    </div>
-    <div class="menu-item">
-      <input type="radio" name="mainDish" value="無骨雞腿排">
-      無骨雞腿排 (85)
-      <input type="number" class="qty" min="0" value="0">
-      <select>
-        <option>胡椒</option><option>原味</option>
-      </select>
-    </div>
+  <h2>主餐（擇一，可不選）</h2>
+  <div id="main-dishes">
+    <label><input type="radio" name="mainDish" value="脆皮雞排" data-price="85"> 脆皮雞排 (85)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option><option>辣味</option><option>特調</option></select><br>
 
-    <h2>點心（可複選）</h2>
-    <div class="menu-item">
-      <input type="checkbox" class="snack" value="甜不辣(小)">
-      甜不辣(小) (20)
-      <input type="number" class="qty snackQty" min="0" value="0">
-      <select class="snackFlavor">
-        <option>胡椒</option><option>原味</option><option>梅粉</option>
-      </select>
-    </div>
-    <div class="menu-item">
-      <input type="checkbox" class="snack" value="杏鮑菇">
-      杏鮑菇 (30)
-      <input type="number" class="qty snackQty" min="0" value="0">
-      <select class="snackFlavor">
-        <option>胡椒</option><option>原味</option>
-      </select>
-    </div>
+    <label><input type="radio" name="mainDish" value="無骨雞塊" data-price="70"> 無骨雞塊 (70)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option><option>辣味</option></select><br>
 
-    <h2>飲料（可複選）</h2>
-    <div class="menu-item">
-      <input type="checkbox" class="drink" value="冬瓜紅茶">
-      冬瓜紅茶 (10)
-      <input type="number" class="qty drinkQty" min="0" value="0">
-      甜度：
-      <select class="drinkSugar">
-        <option>正常</option><option>少糖</option><option>半糖</option><option>無糖</option>
-      </select>
-      冰塊：
-      <select class="drinkIce">
-        <option>正常</option><option>少冰</option><option>去冰</option><option>熱</option>
-      </select>
-    </div>
+    <label><input type="radio" name="mainDish" value="無骨雞腿排" data-price="85"> 無骨雞腿排 (85)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option><option>辣味</option></select><br>
 
-    <h2>套餐</h2>
-    <div class="menu-item">
-      <input type="radio" name="set" value="1號餐">
-      1號餐：雞排+薯條+飲料 (120)
-      <select class="setDrink">
-        <option value="">請選飲料</option>
-        <option>冬瓜紅茶</option><option>泡沫綠茶</option><option>可樂</option><option>雪碧</option>
-      </select>
-    </div>
+    <label><input type="radio" name="mainDish" value="鮮魷+白" data-price="70"> 鮮魷+白 (70)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select><br>
 
-    <h2>付款資訊</h2>
-    <label>付款方式：
-      <select id="paymentMethod">
-        <option>未付款</option><option>現金</option><option>轉帳</option>
-      </select>
-    </label>
-    <label>已付金額：<input type="number" id="paidAmount" value="0"></label>
-    <label>找零金額：<input type="number" id="changeAmount" readonly></label>
+    <label><input type="radio" name="mainDish" value="無敵雞塊(大)" data-price="120"> 無敵雞塊(大) (120)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select>
+  </div>
 
-    <p id="status">狀態：未付款</p>
-    <h3>總金額：<span id="totalAmount">0</span> 元</h3>
+  <h2>點心（可複選）</h2>
+  <div id="snacks">
+    <label><input type="checkbox" value="柳葉魚" data-price="39"> 柳葉魚 (39)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select><br>
 
-    <button type="submit">送出訂單</button>
-    <button type="reset" id="resetBtn">清除</button>
-  </form>
+    <label><input type="checkbox" value="脆皮七里香" data-price="30"> 脆皮七里香 (30)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select><br>
 
-  <section>
-    <h2>📋 訂單總覽</h2>
-    <table id="orderTable">
-      <thead>
-        <tr>
-          <th>timestamp</th>
-          <th>姓名</th>
-          <th>主餐</th>
-          <th>主餐口味</th>
-          <th>點心+口味</th>
-          <th>飲料</th>
-          <th>甜度</th>
-          <th>冰塊</th>
-          <th>套餐</th>
-          <th>套餐口味</th>
-          <th>套餐飲料</th>
-          <th>金額</th>
-          <th>付款方式</th>
-          <th>已付金額</th>
-          <th>找零金額</th>
-          <th>付款時間</th>
-          <th>找零時間</th>
-          <th>狀態</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </section>
+    <label><input type="checkbox" value="脆皮雞心" data-price="30"> 脆皮雞心 (30)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select><br>
+
+    <label><input type="checkbox" value="脆皮雞翅" data-price="30"> 脆皮雞翅 (30)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select><br>
+
+    <label><input type="checkbox" value="脆薯(大)" data-price="50"> 脆薯 (大) (50)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select><br>
+
+    <label><input type="checkbox" value="脆薯(小)" data-price="30"> 脆薯 (小) (30)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select><br>
+
+    <label><input type="checkbox" value="貢丸" data-price="30"> 貢丸 (30)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select><br>
+
+    <label><input type="checkbox" value="甜不辣(大)" data-price="50"> 甜不辣 (大) (50)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select><br>
+
+    <label><input type="checkbox" value="甜不辣(小)" data-price="20"> 甜不辣 (小) (20)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select><br>
+
+    <label><input type="checkbox" value="QQ地瓜球" data-price="20"> QQ地瓜球 (20)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select><br>
+
+    <label><input type="checkbox" value="QQ芋球" data-price="20"> QQ芋球 (20)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select><br>
+
+    <label><input type="checkbox" value="銀絲捲" data-price="20"> 銀絲捲 (20)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select><br>
+
+    <label><input type="checkbox" value="煉乳銀絲捲" data-price="25"> 煉乳銀絲捲 (25)</label><br>
+
+    <label><input type="checkbox" value="梅子地瓜(大)" data-price="50"> 梅子地瓜 (大) (50)</label>
+    <select class="flavor"><option>梅粉</option></select><br>
+
+    <label><input type="checkbox" value="梅子地瓜(小)" data-price="20"> 梅子地瓜 (小) (20)</label>
+    <select class="flavor"><option>梅粉</option></select><br>
+
+    <label><input type="checkbox" value="米腸" data-price="20"> 米腸 (20)</label>
+    <select class="flavor"><option>胡椒</option></select><br>
+
+    <label><input type="checkbox" value="花枝丸(大)" data-price="50"> 花枝丸 (大) (50)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select><br>
+
+    <label><input type="checkbox" value="花枝丸(小)" data-price="20"> 花枝丸 (小) (20)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select><br>
+
+    <label><input type="checkbox" value="百頁豆腐" data-price="20"> 百頁豆腐 (20)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select><br>
+
+    <label><input type="checkbox" value="薯薯條" data-price="20"> 薯薯條 (20)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select><br>
+
+    <label><input type="checkbox" value="芋頭餅" data-price="20"> 芋頭餅 (20)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select><br>
+
+    <label><input type="checkbox" value="四季豆" data-price="30"> 四季豆 (30)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select><br>
+
+    <label><input type="checkbox" value="杏鮑菇" data-price="30"> 杏鮑菇 (30)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select><br>
+
+    <label><input type="checkbox" value="花椰菜" data-price="30"> 花椰菜 (30)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select><br>
+
+    <label><input type="checkbox" value="鮮香菇" data-price="30"> 鮮香菇 (30)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select><br>
+
+    <label><input type="checkbox" value="玉米筍" data-price="30"> 玉米筍 (30)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select><br>
+
+    <label><input type="checkbox" value="炸茄子" data-price="30"> 炸茄子 (30)</label>
+    <select class="flavor"><option>原味</option><option>胡椒</option></select>
+  </div>
+
+  <h2>飲料（可複選）</h2>
+  <label><input type="checkbox" value="冬瓜紅茶" data-price="10"> 冬瓜紅茶 (10)</label>
+  <label><input type="checkbox" value="泡沫綠茶" data-price="10"> 泡沫綠茶 (10)</label>
+  <label><input type="checkbox" value="可樂" data-price="20"> 可樂 (20)</label>
+  <label><input type="checkbox" value="雪碧" data-price="20"> 雪碧 (20)</label>
+  <br>
+  甜度：<select id="sugar"><option>正常</option><option>半糖</option><option>少糖</option><option>無糖</option></select>
+  冰塊：<select id="ice"><option>正常</option><option>少冰</option><option>去冰</option></select>
+
+  <h2>套餐（擇一，可不選）</h2>
+  <label><input type="radio" name="set" value="1號餐" data-price="120"> 1號餐: 雞排+薯條+飲料 (120)</label>
+  <select class="flavor"><option>請選飲料</option><option>冬瓜紅茶</option><option>泡沫綠茶</option><option>可樂</option><option>雪碧</option></select><br>
+
+  <label><input type="radio" name="set" value="3號餐" data-price="120"> 3號餐: 腿排+薯條+飲料 (120)</label>
+  <select class="flavor"><option>請選飲料</option><option>冬瓜紅茶</option><option>泡沫綠茶</option><option>可樂</option><option>雪碧</option></select>
+
+  <h2>付款資訊</h2>
+  <label>付款方式：
+    <select id="method">
+      <option>未付款</option>
+      <option>現金</option>
+      <option>LinePay</option>
+    </select>
+  </label>
+  已付金額：<input type="number" id="paid" value="0" style="width:100px;">
+  找零金額：<input type="number" id="change" value="0" style="width:100px;">
+  <p>狀態：<span id="status">未付款</span></p>
+
+  <h2>總金額：<span id="total">0</span> 元</h2>
+  <button id="submitBtn">送出訂單</button>
+  <button id="clearBtn">清除</button>
+
+  <h2>📋 訂單總覽</h2>
+  <table id="orderTable" border="1">
+    <thead>
+      <tr>
+        <th>timestamp</th>
+        <th>姓名</th>
+        <th>主餐</th>
+        <th>主餐口味</th>
+        <th>點心+口味</th>
+        <th>飲料</th>
+        <th>甜度</th>
+        <th>冰塊</th>
+        <th>套餐</th>
+        <th>套餐口味</th>
+        <th>套餐飲料</th>
+        <th>金額</th>
+        <th>付款方式</th>
+        <th>已付金額</th>
+        <th>找零金額</th>
+        <th>付款時間</th>
+        <th>找零時間</th>
+        <th>狀態</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
   <script src="script.js"></script>
 </body>

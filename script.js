@@ -1,7 +1,8 @@
-const scriptURL = "https://script.google.com/macros/s/你的ID/exec"; // 換成你的 Web App 連結
+// Google Apps Script Web App URL
+const GOOGLE_SCRIPT_URL = "你的 Web App /exec URL";
 
-// 主餐 / 點心 / 飲料 / 套餐
-const mains = [
+// 主餐、點心、飲料、套餐資料
+const mainDishes = [
   { name: "脆皮雞排", price: 85 },
   { name: "無骨雞塊", price: 70 },
   { name: "無骨雞腿排", price: 85 },
@@ -9,22 +10,38 @@ const mains = [
   { name: "無敵雞塊(大)", price: 120 }
 ];
 
-const sides = [
-  { name: "柳葉魚", price: 39 }, { name: "脆皮七里香", price: 30 },
-  { name: "脆皮雞心", price: 30 }, { name: "脆皮雞翅", price: 30 },
-  { name: "脆薯(大份)", price: 50 }, { name: "脆薯(小份)", price: 30 },
-  { name: "貢丸", price: 30 }, { name: "噴波起司球", price: 30 },
-  { name: "美式洋蔥圈", price: 30 }, { name: "包心小湯圓", price: 30 },
-  { name: "甜不辣(大份)", price: 50 }, { name: "甜不辣(小份)", price: 20 },
-  { name: "QQ地瓜球", price: 20 }, { name: "QQ芋球", price: 20 },
-  { name: "銀絲卷", price: 20 }, { name: "煉乳銀絲卷", price: 25 },
-  { name: "梅子地瓜(大)", price: 50 }, { name: "梅子地瓜(小)", price: 20 },
-  { name: "米腸", price: 20 }, { name: "花枝丸(大份)", price: 50 },
-  { name: "花枝丸(小份)", price: 20 }, { name: "米血糕", price: 20 },
-  { name: "百頁豆腐", price: 20 }, { name: "蘿蔔糕", price: 20 },
-  { name: "芋頭餅", price: 20 }, { name: "四季豆", price: 30 },
-  { name: "杏包菇", price: 30 }, { name: "花椰菜", price: 30 },
-  { name: "鮮香菇", price: 30 }, { name: "玉米筍", price: 30 },
+const snacks = [
+  { name: "柳葉魚", price: 39 },
+  { name: "脆皮七里香", price: 30 },
+  { name: "脆皮雞心", price: 30 },
+  { name: "脆皮雞翅", price: 30 },
+  { name: "脆薯(大份)", price: 50 },
+  { name: "脆薯(小份)", price: 30 },
+  { name: "貢丸", price: 30 },
+  { name: "噴波起司球", price: 30 },
+  { name: "起司條(2人)", price: 30 },
+  { name: "美式洋蔥圈", price: 30 },
+  { name: "包心小湯圓", price: 30 },
+  { name: "甜不辣(大份)", price: 50 },
+  { name: "甜不辣(小份)", price: 20 },
+  { name: "QQ地瓜球", price: 20 },
+  { name: "QQ芋球", price: 20 },
+  { name: "銀絲卷", price: 20 },
+  { name: "煉乳銀絲卷", price: 25 },
+  { name: "梅子地瓜(大)", price: 50 },
+  { name: "梅子地瓜(小)", price: 20 },
+  { name: "米腸", price: 20 },
+  { name: "花枝丸(大份)", price: 50 },
+  { name: "花枝丸(小份)", price: 20 },
+  { name: "米血糕", price: 20 },
+  { name: "百頁豆腐", price: 20 },
+  { name: "蘿蔔糕", price: 20 },
+  { name: "芋頭餅", price: 20 },
+  { name: "四季豆", price: 30 },
+  { name: "杏包菇", price: 30 },
+  { name: "花椰菜", price: 30 },
+  { name: "鮮香菇", price: 30 },
+  { name: "玉米筍", price: 30 },
   { name: "炸茄子", price: 30 }
 ];
 
@@ -40,62 +57,62 @@ const combos = [
   { name: "3號套餐：腿排+薯條+飲料", price: 120 }
 ];
 
-// 預設口味
-const flavors = ["不選", "原味", "胡椒", "辣味", "梅粉", "綜合", "特調", "咖哩", "海苔", "起司"];
-
-function renderMenu() {
-  const mainDiv = document.getElementById("mains");
-  mains.forEach(item => {
-    const label = document.createElement("label");
-    label.innerHTML = `<input type="radio" name="主餐" value="${item.name}" data-price="${item.price}">${item.name} ($${item.price})
-      <select name="主餐口味">${flavors.map(f => `<option>${f}</option>`).join("")}</select>`;
-    mainDiv.appendChild(label);
+// 動態產生表單選項
+function renderOptions() {
+  const mainDiv = document.getElementById("mainDishes");
+  mainDishes.forEach(d => {
+    const div = document.createElement("div");
+    div.innerHTML = `<label><input type="radio" name="mainDish" value="${d.name}">${d.name} ($${d.price})</label>
+                     <select class="flavorSelect" data-for="${d.name}">
+                       <option value="">不選</option>
+                       <option value="原味">原味</option>
+                       <option value="胡椒">胡椒</option>
+                       <option value="辣味">辣味</option>
+                       <option value="梅粉">梅粉</option>
+                       <option value="綜合">綜合</option>
+                       <option value="特調">特調</option>
+                       <option value="咖哩">咖哩</option>
+                       <option value="海苔">海苔</option>
+                       <option value="起司">起司</option>
+                     </select>`;
+    mainDiv.appendChild(div);
   });
 
-  const sideDiv = document.getElementById("sides");
-  sides.forEach(item => {
-    const label = document.createElement("label");
-    label.innerHTML = `<input type="checkbox" name="點心" value="${item.name}" data-price="${item.price}">${item.name} ($${item.price})
-      <select>${flavors.map(f => `<option>${f}</option>`).join("")}</select>`;
-    sideDiv.appendChild(label);
+  const snackDiv = document.getElementById("snacks");
+  snacks.forEach(s => {
+    const div = document.createElement("div");
+    div.innerHTML = `<label><input type="checkbox" name="snack" value="${s.name}">${s.name} ($${s.price})</label>
+                     <select class="flavorSelect" data-for="${s.name}">
+                       <option value="">不選</option>
+                       <option value="原味">原味</option>
+                       <option value="胡椒">胡椒</option>
+                       <option value="辣味">辣味</option>
+                       <option value="梅粉">梅粉</option>
+                       <option value="綜合">綜合</option>
+                       <option value="特調">特調</option>
+                       <option value="咖哩">咖哩</option>
+                       <option value="海苔">海苔</option>
+                       <option value="起司">起司</option>
+                     </select>`;
+    snackDiv.appendChild(div);
   });
 
   const drinkDiv = document.getElementById("drinks");
-  drinks.forEach(item => {
-    const label = document.createElement("label");
-    label.innerHTML = `<input type="checkbox" name="飲料" value="${item.name}" data-price="${item.price}">${item.name} ($${item.price})`;
-    drinkDiv.appendChild(label);
+  drinks.forEach(dr => {
+    const div = document.createElement("div");
+    div.innerHTML = `<label><input type="checkbox" name="drink" value="${dr.name}">${dr.name} ($${dr.price})</label>`;
+    drinkDiv.appendChild(div);
   });
 
   const comboDiv = document.getElementById("combos");
-  combos.forEach(item => {
-    const label = document.createElement("label");
-    label.innerHTML = `<input type="radio" name="套餐" value="${item.name}" data-price="${item.price}">${item.name} ($${item.price})
-      <select>${flavors.map(f => `<option>${f}</option>`).join("")}</select>`;
-    comboDiv.appendChild(label);
+  combos.forEach(c => {
+    const div = document.createElement("div");
+    div.innerHTML = `<label><input type="radio" name="combo" value="${c.name}">${c.name} ($${c.price})</label>
+                     <select class="comboDrink">
+                       <option value="">請選擇飲料</option>
+                       ${drinks.map(dr => `<option value="${dr.name}">${dr.name}</option>`).join("")}
+                     </select>`;
+    comboDiv.appendChild(div);
   });
 }
-
-renderMenu();
-
-document.getElementById("orderForm").addEventListener("submit", function(e) {
-  e.preventDefault();
-
-  const form = new FormData(e.target);
-  let order = {};
-  form.forEach((v, k) => order[k] = v);
-
-  let total = 0;
-  document.querySelectorAll("input[name='主餐']:checked").forEach(i => total += +i.dataset.price);
-  document.querySelectorAll("input[name='點心']:checked").forEach(i => total += +i.dataset.price);
-  document.querySelectorAll("input[name='飲料']:checked").forEach(i => total += +i.dataset.price);
-  document.querySelectorAll("input[name='套餐']:checked").forEach(i => total += +i.dataset.price);
-  order["金額"] = total;
-
-  const paid = +document.getElementById("paidAmount").value || 0;
-  const change = paid - total;
-  document.getElementById("changeAmount").value = change > 0 ? change : 0;
-  order["找零金額"] = change > 0 ? change : 0;
-
-  submitOrder(order);
-});
+renderOptions();

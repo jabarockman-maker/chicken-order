@@ -23,6 +23,14 @@
         <option>胡椒</option><option>原味</option><option>辣味</option><option>特調</option>
       </select>
     </div>
+    <div class="menu-item">
+      <input type="radio" name="mainDish" value="無骨雞腿排">
+      無骨雞腿排 (85)
+      <input type="number" class="qty" min="0" value="0">
+      <select>
+        <option>胡椒</option><option>原味</option>
+      </select>
+    </div>
 
     <h2>點心（可複選）</h2>
     <div class="menu-item">
@@ -48,9 +56,13 @@
       冬瓜紅茶 (10)
       <input type="number" class="qty drinkQty" min="0" value="0">
       甜度：
-      <select class="drinkSugar"><option>正常</option><option>少糖</option><option>半糖</option><option>無糖</option></select>
+      <select class="drinkSugar">
+        <option>正常</option><option>少糖</option><option>半糖</option><option>無糖</option>
+      </select>
       冰塊：
-      <select class="drinkIce"><option>正常</option><option>少冰</option><option>去冰</option><option>熱</option></select>
+      <select class="drinkIce">
+        <option>正常</option><option>少冰</option><option>去冰</option><option>熱</option>
+      </select>
     </div>
 
     <h2>套餐</h2>
@@ -84,10 +96,25 @@
     <table id="orderTable">
       <thead>
         <tr>
-          <th>姓名</th><th>主餐</th><th>主餐口味</th><th>點心+口味</th><th>飲料</th>
-          <th>甜度</th><th>冰塊</th><th>套餐</th><th>套餐口味</th><th>套餐飲料</th>
-          <th>金額</th><th>付款方式</th><th>已付金額</th><th>找零金額</th>
-          <th>付款時間</th><th>找零時間</th><th>狀態</th><th>操作</th>
+          <th>timestamp</th>
+          <th>姓名</th>
+          <th>主餐</th>
+          <th>主餐口味</th>
+          <th>點心+口味</th>
+          <th>飲料</th>
+          <th>甜度</th>
+          <th>冰塊</th>
+          <th>套餐</th>
+          <th>套餐口味</th>
+          <th>套餐飲料</th>
+          <th>金額</th>
+          <th>付款方式</th>
+          <th>已付金額</th>
+          <th>找零金額</th>
+          <th>付款時間</th>
+          <th>找零時間</th>
+          <th>狀態</th>
+          <th>操作</th>
         </tr>
       </thead>
       <tbody></tbody>

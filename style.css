@@ -1,84 +1,53 @@
 body {
-  font-family: "Microsoft JhengHei", sans-serif;
+  font-family: Arial, sans-serif;
+  background: #fdf9f3;
   padding: 20px;
-  line-height: 1.6;
-}
-
-h1 {
-  color: brown;
+  color: #333;
 }
 
 h2 {
-  color: darkorange;
-  margin-top: 20px;
+  color: #d35400;
 }
 
-label {
-  margin-right: 10px;
+h3 {
+  color: #e67e22;
 }
 
-/* 主餐、飲料、點心 選項橫向排列 */
-.inline-options {
+.inline {
+  margin-right: 15px;
+}
+
+/* 主餐、套餐：橫向排列 */
+#mainDish, #combo {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-bottom: 10px;
 }
 
-.inline-options label {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 4px 8px;
-  cursor: pointer;
-  background: #fafafa;
-  transition: background 0.2s;
+#mainDish label, #combo label {
+  border: 1px solid #ddd;
+  padding: 6px 10px;
+  border-radius: 5px;
+  background: #fffdf8;
 }
 
-.inline-options label:hover {
-  background: #f0f0f0;
+/* 點心：橫向排列 */
+#snacks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-/* 點心的單個項目（含下拉口味） */
 .snack-item {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 6px;
+  border: 1px solid #ddd;
+  padding: 6px 10px;
+  border-radius: 5px;
+  background: #fffdf8;
 }
 
-/* 訂單表格 */
-#orderTable {
-  border-collapse: collapse;
-  width: 100%;
-  margin-top: 20px;
-}
-
-#orderTable th,
-#orderTable td {
-  border: 1px solid #ccc;
-  padding: 6px;
-  text-align: center;
-}
-
-#orderTable th {
-  background: #f5f5f5;
-}
-
-/* 送出按鈕 */
-#submitBtn {
-  margin-top: 15px;
-  padding: 8px 16px;
-  font-size: 16px;
-  background-color: orange;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-#submitBtn:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+.snack-item select {
+  margin-left: 5px;
 }

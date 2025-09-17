@@ -2,28 +2,27 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>雞排訂購單</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
     <h1>🐔 雞排訂購單</h1>
+    <label>姓名：<input type="text" id="name" required></label>
 
-    <label>姓名：
-      <input type="text" id="name" required>
-    </label>
-
+    <!-- 主餐 -->
     <h2>主餐（擇一）</h2>
-    <div id="mainDishes"></div>
+    <div id="mainDish"></div>
 
+    <!-- 點心 -->
     <h2>點心（可複選）</h2>
-    <div id="snacks"></div>
+    <div id="sides" class="grid"></div>
 
+    <!-- 飲料 -->
     <h2>飲料（可複選）</h2>
     <div id="drinks"></div>
     <label>甜度：
-      <select id="sweetness">
+      <select id="sugar">
         <option value="正常">正常</option>
         <option value="少糖">少糖</option>
         <option value="半糖">半糖</option>
@@ -41,9 +40,11 @@
       </select>
     </label>
 
+    <!-- 套餐 -->
     <h2>套餐（擇一，可不選）</h2>
-    <div id="combos"></div>
+    <div id="sets"></div>
 
+    <!-- 付款資訊 -->
     <h2>付款資訊</h2>
     <label>付款方式：
       <select id="payMethod">
@@ -53,19 +54,14 @@
         <option value="信用卡">信用卡</option>
       </select>
     </label>
-    <label>已付金額：
-      <input type="number" id="paid" value="0">
-    </label>
-    <label>找零金額：
-      <input type="number" id="change" readonly>
-    </label>
-    <label>
-      <input type="checkbox" id="changeDone"> 找零完成
-    </label>
+    <label>已付金額：<input type="number" id="paid" value="0"></label>
+    <label>找零金額：<input type="number" id="change" value="0"></label>
+    <label><input type="checkbox" id="changeDone"> 找零完成</label>
 
     <h3 id="total">總金額：0 元</h3>
-    <button id="submitBtn">送出訂單</button>
+    <button id="submit">送出訂單</button>
 
+    <!-- 訂單總覽 -->
     <h2>📋 訂單總覽</h2>
     <table id="orderTable">
       <thead>
@@ -79,6 +75,7 @@
           <th>冰塊</th>
           <th>套餐</th>
           <th>套餐口味</th>
+          <th>套餐飲料</th>
           <th>金額</th>
           <th>付款方式</th>
           <th>已付金額</th>

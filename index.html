@@ -1,82 +1,127 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>🐔 雞排訂購單</title>
+  <title>雞排訂購單</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="header">
-    <div class="chicken-run"></div>
-    <h1>🐔 雞排訂購單</h1>
-  </div>
-
-  <form id="orderForm">
-    姓名：<input type="text" id="name" required><br><br>
-
-    <h2>主餐（擇一，可不選）</h2>
-    <label><input type="radio" name="mainDish" value="脆皮雞排"> 脆皮雞排 (85元)</label>
-    數量：<input type="number" min="0" value="0" class="qty" data-price="85"><br>
-    <label><input type="radio" name="mainDish" value="無骨雞塊"> 無骨雞塊 (70元)</label>
-    數量：<input type="number" min="0" value="0" class="qty" data-price="70"><br>
-    <label><input type="radio" name="mainDish" value="無骨雞腿排"> 無骨雞腿排 (85元)</label>
-    數量：<input type="number" min="0" value="0" class="qty" data-price="85"><br>
-    <label><input type="radio" name="mainDish" value="鮮魷"> 鮮魷 (70元)</label>
-    數量：<input type="number" min="0" value="0" class="qty" data-price="70"><br>
-    <label><input type="radio" name="mainDish" value="無敵雞塊(大)"> 無敵雞塊(大) (120元)</label>
-    數量：<input type="number" min="0" value="0" class="qty" data-price="120"><br>
-
-    <h2>點心（可複選）</h2>
-    <div class="snack-list">
-      <label><input type="checkbox" value="柳葉魚" data-price="39"> 柳葉魚 (39元)</label>
-      數量：<input type="number" min="0" value="0" class="qty" data-price="39">
-      <select><option>胡椒</option><option>原味</option><option>辣味</option><option>梅粉</option></select><br>
-
-      <label><input type="checkbox" value="杏鮑菇" data-price="30"> 杏鮑菇 (30元)</label>
-      數量：<input type="number" min="0" value="0" class="qty" data-price="30">
-      <select><option>胡椒</option><option>原味</option><option>辣味</option><option>梅粉</option></select><br>
-      <!-- 依樣複製其他點心 -->
+  <header>
+    <div class="chicken-run">
+      <img src="chicken.png" class="chicken" alt="小雞">
+      <h1>🐔 雞排訂購單</h1>
     </div>
+  </header>
 
-    <h2>飲料（可複選）</h2>
-    <label><input type="checkbox" value="冬瓜紅茶" data-price="10"> 冬瓜紅茶 (10元)</label>
-    數量：<input type="number" min="0" value="0" class="qty" data-price="10">
-    甜度：
-    <select><option>正常</option><option>半糖</option><option>少糖</option><option>無糖</option></select>
-    冰塊：
-    <select><option>正常</option><option>少冰</option><option>去冰</option></select><br>
+  <main>
+    <form id="orderForm">
+      <label>姓名：<input type="text" id="name" required></label>
 
-    <h2>套餐（擇一，可不選）</h2>
-    <label><input type="radio" name="setMeal" value="1號套餐"> 1號套餐: 雞排+薯條+飲料 (120元)</label>
-    飲料：
-    <select><option>請選擇飲料</option><option>冬瓜紅茶</option><option>泡沫綠茶</option><option>可樂</option><option>雪碧</option></select><br>
+      <h2>主餐（擇一，可不選）</h2>
+      <div class="menu-group">
+        <label><input type="radio" name="mainDish" value="脆皮雞排(85)"> 脆皮雞排 (85)</label>
+        <input type="number" id="mainQty" min="0" value="0">
+        <select id="mainFlavor">
+          <option value="胡椒">胡椒</option>
+          <option value="原味">原味</option>
+          <option value="辣味">辣味</option>
+          <option value="特調">特調</option>
+        </select>
+      </div>
 
-    <h2>付款資訊</h2>
-    付款方式：
-    <select id="paymentMethod">
-      <option>未付款</option>
-      <option>現金</option>
-      <option>LinePay</option>
-    </select><br>
-    已付金額：<input type="number" id="paidAmount" value="0">
-    找零金額：<input type="number" id="changeAmount" readonly><br>
-    狀態：<span id="status">未付款</span><br>
+      <h2>點心（可複選）</h2>
+      <div class="menu-grid">
+        <label>
+          <input type="checkbox" value="甜不辣(小)20" class="snack"> 甜不辣 (小) (20)
+          <input type="number" class="snack-qty" min="0" value="0">
+          <select class="snack-flavor">
+            <option value="胡椒">胡椒</option>
+            <option value="原味">原味</option>
+            <option value="梅粉">梅粉</option>
+          </select>
+        </label>
+        <label>
+          <input type="checkbox" value="杏鮑菇30" class="snack"> 杏鮑菇 (30)
+          <input type="number" class="snack-qty" min="0" value="0">
+          <select class="snack-flavor">
+            <option value="胡椒">胡椒</option>
+            <option value="原味">原味</option>
+          </select>
+        </label>
+      </div>
 
-    <h2>總金額：<span id="total">0</span> 元</h2>
-    <button type="submit">送出訂單</button>
-    <button type="reset" id="resetBtn">清除</button>
-  </form>
+      <h2>飲料（可複選）</h2>
+      <label>
+        <input type="checkbox" value="冬瓜紅茶10" class="drink"> 冬瓜紅茶 (10)
+        <input type="number" class="drink-qty" min="0" value="0">
+        甜度：
+        <select class="drink-sugar">
+          <option value="正常">正常</option>
+          <option value="少糖">少糖</option>
+          <option value="半糖">半糖</option>
+          <option value="無糖">無糖</option>
+        </select>
+        冰塊：
+        <select class="drink-ice">
+          <option value="正常">正常</option>
+          <option value="少冰">少冰</option>
+          <option value="去冰">去冰</option>
+          <option value="熱">熱</option>
+        </select>
+      </label>
 
-  <h2>📋 訂單總覽</h2>
-  <table id="orderTable">
-    <thead>
-      <tr>
-        <th>姓名</th><th>主餐</th><th>點心</th><th>飲料</th>
-        <th>套餐</th><th>金額</th><th>付款狀態</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+      <h2>套餐（擇一，可不選）</h2>
+      <label>
+        <input type="radio" name="setMeal" value="1號餐120"> 1號餐：雞排+薯條+飲料 (120)
+        <select class="set-drink">
+          <option value="">請選飲料</option>
+          <option value="冬瓜紅茶">冬瓜紅茶</option>
+          <option value="泡沫綠茶">泡沫綠茶</option>
+          <option value="可樂">可樂</option>
+          <option value="雪碧">雪碧</option>
+        </select>
+      </label>
+
+      <h2>付款資訊</h2>
+      <label>付款方式：
+        <select id="paymentMethod">
+          <option value="未付款">未付款</option>
+          <option value="現金">現金</option>
+          <option value="轉帳">轉帳</option>
+        </select>
+      </label>
+      <label>已付金額：<input type="number" id="paidAmount" value="0"></label>
+      <label>找零金額：<input type="text" id="changeAmount" readonly></label>
+
+      <p id="status">狀態：未付款</p>
+      <h3>總金額：<span id="totalAmount">0</span> 元</h3>
+
+      <button type="submit">送出訂單</button>
+      <button type="reset" id="resetForm">清除</button>
+    </form>
+  </main>
+
+  <section>
+    <h2>📋 訂單總覽</h2>
+    <table id="orderTable">
+      <thead>
+        <tr>
+          <th>姓名</th>
+          <th>主餐</th>
+          <th>點心</th>
+          <th>飲料</th>
+          <th>套餐</th>
+          <th>金額</th>
+          <th>付款方式</th>
+          <th>已付金額</th>
+          <th>找零</th>
+          <th>狀態</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
 
   <script src="script.js"></script>
 </body>

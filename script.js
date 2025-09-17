@@ -1,78 +1,117 @@
-const scriptURL = "你的 Google Apps Script exec 連結";
+const scriptURL = "你的 Apps Script /exec URL";
+const form = document.getElementById("orderForm");
+const orderTable = document.querySelector("#orderTable tbody");
+const totalDisplay = document.getElementById("total");
+const paidAmount = document.getElementById("paidAmount");
+const changeAmount = document.getElementById("changeAmount");
+const statusDisplay = document.getElementById("status");
 
-// 載入 localStorage 訂單
-window.onload = () => {
-  const savedOrders = localStorage.getItem("orders");
-  if (savedOrders) {
-    document.querySelector("#orderTable tbody").innerHTML = savedOrders;
-  }
-};
+let orders = JSON.parse(localStorage.getItem("orders") || "[]");
 
-// 計算金額
-function calcTotal() {
-  let total = 0;
-  document.querySelectorAll("input[type=radio][name=mainDish]").forEach(r => {
-    if (r.checked) {
-      if (r.value === "脆皮雞排") total += 85;
-      if (r.value === "無骨雞塊") total += 70;
-      if (r.value === "無骨雞腿排") total += 85;
-      if (r.value === "鮮魷白") total += 70;
-      if (r.value === "無敵雞塊(大)") total += 120;
-    }
+function renderOrders() {
+  orderTable.innerHTML = "";
+  orders.forEach(order => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${order.name}</td>
+      <td>${order.mainDish}</td>
+      <td>${order.snacks}</td>
+      <td>${order.drinks}</td>
+      <td>${order.setMeal}</td>
+      <td>${order.total}</td>
+      <td>
+        <button onclick="updateStatus('${order.name}', '已付款')">已付款</button>
+        <button onclick="updateStatus('${order.name}', '未付款')">未付款</button>
+      </td>
+    `;
+    orderTable.appendChild(row);
   });
-  document.querySelectorAll(".snacks input[type=checkbox]").forEach((c, i) => {
-    if (c.checked) {
-      if (c.value === "柳葉魚") total += 39;
-      if (c.value === "杏鮑菇") total += 30;
-      // 其他點心依價目加上
-    }
-  });
-  document.querySelectorAll("input[type=checkbox][value]").forEach(c => {
-    if (c.checked && ["冬瓜紅茶","泡沫綠茶"].includes(c.value)) total += 10;
-    if (c.checked && ["可樂","雪碧"].includes(c.value)) total += 20;
-  });
-  if (document.querySelector("input[name=setMeal]:checked")) total += 120;
-  document.getElementById("total").innerText = total;
-  return total;
 }
-document.querySelectorAll("input, select").forEach(el => el.addEventListener("change", calcTotal));
+renderOrders();
 
-// 送出訂單
-document.getElementById("submitOrder").addEventListener("click", () => {
+function updateStatus(name, status) {
+  const order = orders.find(o => o.name === name);
+  if (order) {
+    order.status = status;
+    localStorage.setItem("orders", JSON.stringify(orders));
+    renderOrders();
+    // 回傳到 Google Sheet
+    fetch(scriptURL, {
+      method: "POST",
+      body: new URLSearchParams(order)
+    });
+  }
+}
+
+form.addEventListener("submit", e => {
+  e.preventDefault();
   const name = document.getElementById("name").value;
-  const mainDish = document.querySelector("input[name=mainDish]:checked")?.value || "";
-  const mainFlavor = document.getElementById("mainDishFlavor").value;
-  const snacks = Array.from(document.querySelectorAll(".snacks input:checked"))
-    .map((c,i)=> c.value+"("+c.parentElement.nextElementSibling.value+")").join(", ");
-  const drinks = Array.from(document.querySelectorAll("input[type=checkbox][value]:checked"))
-    .map(c => c.value).join(", ");
-  const sugar = document.getElementById("sugar").value;
-  const ice = document.getElementById("ice").value;
-  const setMeal = document.querySelector("input[name=setMeal]:checked")?.value || "";
-  const setMealDrink = setMeal==="1號餐" ? document.getElementById("setMealDrink").value :
-                       setMeal==="3號餐" ? document.getElementById("setMealDrink2").value : "";
-  const total = calcTotal();
-  const paymentMethod = document.getElementById("paymentMethod").value;
-  const paid = document.getElementById("paidAmount").value;
-  const change = document.getElementById("changeAmount").value;
-  const status = document.getElementById("changeDone").checked ? "已找零" : "未找零";
+  let total = 0;
+  let mainDish = "";
+  let snacks = "";
+  let drinks = "";
+  let setMeal = "";
 
-  const row = `<tr>
-    <td>${name}</td><td>${mainDish}</td><td>${mainFlavor}</td>
-    <td>${snacks}</td><td>${drinks}</td><td>${drinks? sugar:""}</td><td>${drinks? ice:""}</td>
-    <td>${setMeal}</td><td>${setMealDrink}</td><td>${total}</td>
-    <td>${paymentMethod}</td><td>${paid}</td><td>${change}</td><td>${status}</td>
-  </tr>`;
+  // 主餐
+  document.querySelectorAll("input[name='mainDish']").forEach(r => {
+    if (r.checked) {
+      const qty = r.parentElement.querySelector("input.qty").value;
+      total += r.dataset.price * qty;
+      mainDish = `${r.value} ×${qty}`;
+    }
+  });
 
-  document.querySelector("#orderTable tbody").innerHTML += row;
-  localStorage.setItem("orders", document.querySelector("#orderTable tbody").innerHTML);
+  // 點心
+  document.querySelectorAll(".snack-list input[type='checkbox']").forEach(c => {
+    if (c.checked) {
+      const qty = c.parentElement.querySelector("input.qty").value;
+      const flavor = c.parentElement.querySelector("select").value;
+      total += c.dataset.price * qty;
+      snacks += `${c.value} ×${qty}（${flavor}）, `;
+    }
+  });
 
-  // POST to Google Sheet
-  fetch(scriptURL, { method: "POST", body: new FormData(document.createElement("form")) });
+  // 飲料
+  document.querySelectorAll("input[type='checkbox'][value*='茶'],input[value='可樂'],input[value='雪碧']").forEach(c => {
+    if (c.checked) {
+      const qty = c.parentElement.querySelector("input.qty").value;
+      const sweet = c.parentElement.querySelector("select:nth-of-type(1)").value;
+      const ice = c.parentElement.querySelector("select:nth-of-type(2)").value;
+      total += c.dataset.price * qty;
+      drinks += `${c.value} ×${qty}（${sweet}${ice}）, `;
+    }
+  });
+
+  // 套餐
+  document.querySelectorAll("input[name='setMeal']").forEach(r => {
+    if (r.checked) {
+      total += 120;
+      const drink = r.parentElement.querySelector("select").value;
+      setMeal = `${r.value}（${drink}）`;
+    }
+  });
+
+  totalDisplay.textContent = total;
+
+  const order = { name, mainDish, snacks, drinks, setMeal, total, status: "未付款" };
+  orders.push(order);
+  localStorage.setItem("orders", JSON.stringify(orders));
+  renderOrders();
+
+  // 傳到 Google Sheet
+  fetch(scriptURL, {
+    method: "POST",
+    body: new URLSearchParams(order)
+  });
+
+  form.reset();
 });
 
-// 清除
-document.getElementById("clearOrder").addEventListener("click", ()=>{
-  document.querySelector("#orderTable tbody").innerHTML="";
-  localStorage.removeItem("orders");
+// 找零自動算
+paidAmount.addEventListener("input", () => {
+  const total = parseInt(totalDisplay.textContent) || 0;
+  const paid = parseInt(paidAmount.value) || 0;
+  const change = paid - total;
+  changeAmount.value = change > 0 ? change : 0;
+  statusDisplay.textContent = change === 0 ? "已付款" : change > 0 ? "待找零" : "未付款";
 });

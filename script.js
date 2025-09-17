@@ -1,117 +1,102 @@
-const scriptURL = "你的 Apps Script /exec URL";
-const form = document.getElementById("orderForm");
-const orderTable = document.querySelector("#orderTable tbody");
-const totalDisplay = document.getElementById("total");
-const paidAmount = document.getElementById("paidAmount");
-const changeAmount = document.getElementById("changeAmount");
-const statusDisplay = document.getElementById("status");
+const sheetUrl = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
 
-let orders = JSON.parse(localStorage.getItem("orders") || "[]");
+// 訂單紀錄 localStorage
+let orders = JSON.parse(localStorage.getItem("orders")) || [];
 
-function renderOrders() {
-  orderTable.innerHTML = "";
-  orders.forEach(order => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${order.name}</td>
-      <td>${order.mainDish}</td>
-      <td>${order.snacks}</td>
-      <td>${order.drinks}</td>
-      <td>${order.setMeal}</td>
-      <td>${order.total}</td>
-      <td>
-        <button onclick="updateStatus('${order.name}', '已付款')">已付款</button>
-        <button onclick="updateStatus('${order.name}', '未付款')">未付款</button>
-      </td>
-    `;
-    orderTable.appendChild(row);
-  });
-}
-renderOrders();
-
-function updateStatus(name, status) {
-  const order = orders.find(o => o.name === name);
-  if (order) {
-    order.status = status;
-    localStorage.setItem("orders", JSON.stringify(orders));
-    renderOrders();
-    // 回傳到 Google Sheet
-    fetch(scriptURL, {
-      method: "POST",
-      body: new URLSearchParams(order)
-    });
-  }
-}
-
-form.addEventListener("submit", e => {
-  e.preventDefault();
-  const name = document.getElementById("name").value;
+// 即時計算金額 & 找零
+function calculateTotal() {
   let total = 0;
-  let mainDish = "";
-  let snacks = "";
-  let drinks = "";
-  let setMeal = "";
 
   // 主餐
-  document.querySelectorAll("input[name='mainDish']").forEach(r => {
-    if (r.checked) {
-      const qty = r.parentElement.querySelector("input.qty").value;
-      total += r.dataset.price * qty;
-      mainDish = `${r.value} ×${qty}`;
-    }
-  });
+  const mainDish = document.querySelector("input[name='mainDish']:checked");
+  if (mainDish) {
+    const qty = parseInt(document.getElementById("mainQty").value) || 0;
+    const price = parseInt(mainDish.value.match(/\d+/)[0]);
+    total += qty * price;
+  }
 
   // 點心
-  document.querySelectorAll(".snack-list input[type='checkbox']").forEach(c => {
-    if (c.checked) {
-      const qty = c.parentElement.querySelector("input.qty").value;
-      const flavor = c.parentElement.querySelector("select").value;
-      total += c.dataset.price * qty;
-      snacks += `${c.value} ×${qty}（${flavor}）, `;
-    }
+  document.querySelectorAll(".snack:checked").forEach((snack, i) => {
+    const qty = parseInt(document.querySelectorAll(".snack-qty")[i].value) || 0;
+    const price = parseInt(snack.value.match(/\d+/)[0]);
+    total += qty * price;
   });
 
   // 飲料
-  document.querySelectorAll("input[type='checkbox'][value*='茶'],input[value='可樂'],input[value='雪碧']").forEach(c => {
-    if (c.checked) {
-      const qty = c.parentElement.querySelector("input.qty").value;
-      const sweet = c.parentElement.querySelector("select:nth-of-type(1)").value;
-      const ice = c.parentElement.querySelector("select:nth-of-type(2)").value;
-      total += c.dataset.price * qty;
-      drinks += `${c.value} ×${qty}（${sweet}${ice}）, `;
-    }
+  document.querySelectorAll(".drink:checked").forEach((drink, i) => {
+    const qty = parseInt(document.querySelectorAll(".drink-qty")[i].value) || 0;
+    const price = parseInt(drink.value.match(/\d+/)[0]);
+    total += qty * price;
   });
 
   // 套餐
-  document.querySelectorAll("input[name='setMeal']").forEach(r => {
-    if (r.checked) {
-      total += 120;
-      const drink = r.parentElement.querySelector("select").value;
-      setMeal = `${r.value}（${drink}）`;
-    }
-  });
+  const setMeal = document.querySelector("input[name='setMeal']:checked");
+  if (setMeal) {
+    const price = parseInt(setMeal.value.match(/\d+/)[0]);
+    total += price;
+  }
 
-  totalDisplay.textContent = total;
+  document.getElementById("totalAmount").textContent = total;
 
-  const order = { name, mainDish, snacks, drinks, setMeal, total, status: "未付款" };
+  // 找零
+  const paid = parseInt(document.getElementById("paidAmount").value) || 0;
+  document.getElementById("changeAmount").value = paid - total >= 0 ? paid - total : 0;
+}
+document.querySelectorAll("input, select").forEach(el => {
+  el.addEventListener("change", calculateTotal);
+});
+
+// 送出訂單
+document.getElementById("orderForm").addEventListener("submit", e => {
+  e.preventDefault();
+
+  const name = document.getElementById("name").value;
+  const total = document.getElementById("totalAmount").textContent;
+  const paid = document.getElementById("paidAmount").value;
+  const change = document.getElementById("changeAmount").value;
+  const method = document.getElementById("paymentMethod").value;
+
+  const order = { name, total, paid, change, method, status: method };
   orders.push(order);
   localStorage.setItem("orders", JSON.stringify(orders));
+
   renderOrders();
 
-  // 傳到 Google Sheet
-  fetch(scriptURL, {
+  // 發送到 Google Sheet
+  fetch(sheetUrl, {
     method: "POST",
-    body: new URLSearchParams(order)
+    body: JSON.stringify(order)
   });
-
-  form.reset();
 });
 
-// 找零自動算
-paidAmount.addEventListener("input", () => {
-  const total = parseInt(totalDisplay.textContent) || 0;
-  const paid = parseInt(paidAmount.value) || 0;
-  const change = paid - total;
-  changeAmount.value = change > 0 ? change : 0;
-  statusDisplay.textContent = change === 0 ? "已付款" : change > 0 ? "待找零" : "未付款";
-});
+// 渲染訂單總覽
+function renderOrders() {
+  const tbody = document.querySelector("#orderTable tbody");
+  tbody.innerHTML = "";
+  orders.forEach((o, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${o.name}</td>
+      <td>-</td>
+      <td>-</td>
+      <td>-</td>
+      <td>-</td>
+      <td>${o.total}</td>
+      <td>${o.method}</td>
+      <td>${o.paid}</td>
+      <td>${o.change}</td>
+      <td>${o.status}</td>
+      <td><button onclick="markPaid(${i})">已付款</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function markPaid(i) {
+  orders[i].status = "已付款";
+  localStorage.setItem("orders", JSON.stringify(orders));
+  renderOrders();
+}
+
+// 頁面載入恢復
+renderOrders();

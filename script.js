@@ -7,7 +7,7 @@ const mainDishList = [
   { name: "脆皮雞排", price: 85 },
   { name: "無骨雞塊", price: 70 },
   { name: "無骨雞腿排", price: 85 },
-  { name: "鮮蝦+白飯", price: 70 },
+  { name: "鮮魷+白飯", price: 70 },   // 修正名稱
   { name: "無敵雞塊(大)", price: 120 }
 ];
 
@@ -17,7 +17,19 @@ const snackList = [
   { name: "柳葉魚", price: 39 }, { name: "脆皮七里香", price: 30 },
   { name: "脆皮雞心", price: 30 }, { name: "脆皮雞翅", price: 30 },
   { name: "脆薯（大份）", price: 50 }, { name: "脆薯（小份）", price: 30 },
-  { name: "貢丸", price: 30 }, { name: "噗波起司球", price: 30 }
+  { name: "貢丸", price: 30 }, { name: "噗波起司球", price: 30 },
+  { name: "起司條（2入）", price: 30 }, { name: "美式洋蔥圈", price: 30 },
+  { name: "包心小湯圓", price: 30 }, { name: "甜不辣（大份）", price: 50 },
+  { name: "甜不辣（小份）", price: 20 }, { name: "QQ地瓜球", price: 20 },
+  { name: "QQ芋球", price: 20 }, { name: "銀絲卷", price: 20 },
+  { name: "燻乳銀絲卷", price: 25 }, { name: "梅子地瓜（大）", price: 50 },
+  { name: "梅子地瓜（小）", price: 20 }, { name: "米腸", price: 20 },
+  { name: "花枝丸（大份）", price: 50 }, { name: "花枝丸（小份）", price: 20 },
+  { name: "米血糕", price: 20 }, { name: "百頁豆腐", price: 20 },
+  { name: "蘿蔔糕", price: 20 }, { name: "芋頭餅", price: 20 },
+  { name: "四季豆", price: 30 }, { name: "杏包菇", price: 30 },
+  { name: "花椰菜", price: 30 }, { name: "鮮香菇", price: 30 },
+  { name: "玉米筍", price: 30 }, { name: "炸茄子", price: 30 }
 ];
 
 const drinksList = [
@@ -77,6 +89,7 @@ function genCheckboxSnacks() {
   host.innerHTML = '';
   snackList.forEach((item, i) => {
     const wrap = document.createElement('div');
+    wrap.className = 'snack-item';
     const cb = Object.assign(document.createElement('input'), {
       type: 'checkbox', name: 'snacks', value: String(i)
     });
@@ -112,10 +125,12 @@ function calcTotal() {
 const updateTotal = () => document.getElementById('totalPrice').textContent = calcTotal();
 
 /***** Google Sheet 送出 *****/
-function sendToGoogleSheet(order) {
+function sendToGoogleSheet(order, action="add") {
   const payload = new URLSearchParams();
+  payload.set('action', action);
   payload.set('timestamp', new Date().toISOString());
   Object.entries(order).forEach(([k,v]) => payload.set(k,v));
+
   return fetch(googleScriptURL, {
     method: 'POST',
     mode: 'no-cors',
@@ -146,19 +161,44 @@ function renderOrders() {
       <td>${o['套餐']}</td>
       <td>${o['套餐口味']}</td>
       <td>${o['金額']}</td>
-      <td><input type="checkbox" ${o.paid ? 'checked' : ''} 
-        onchange="togglePaid(${idx}, this.checked)" /></td>`;
+      <td><input type="number" value="${o['已付金額']||''}" onchange="updatePayment(${idx}, this.value)" /></td>
+      <td>
+        <select onchange="updatePayMethod(${idx}, this.value)">
+          <option value="">--</option>
+          <option value="現金" ${o['付款方式']==="現金"?"selected":""}>現金</option>
+          <option value="LinePay" ${o['付款方式']==="LinePay"?"selected":""}>LinePay</option>
+          <option value="轉帳" ${o['付款方式']==="轉帳"?"selected":""}>轉帳</option>
+        </select>
+      </td>
+      <td>${o['找零金額']||''}</td>
+      <td>${o['狀態']||'未付款'}</td>
+      <td>${o['付款時間']||''}</td>
+    `;
     tbody.appendChild(tr);
   });
-  tfoot.innerHTML = `<tr><td colspan="9" style="text-align:right;">總金額合計：</td><td>${sum}</td><td></td></tr>`;
+  tfoot.innerHTML = `<tr><td colspan="9" style="text-align:right;">總金額合計：</td><td>${sum}</td><td colspan="5"></td></tr>`;
 }
 
-function togglePaid(idx, checked) {
+function updatePayment(idx, paidValue) {
   const orders = loadOrders();
-  orders[idx].paid = checked;
-  orders[idx].paidTime = checked ? new Date().toLocaleString() : '';
+  const order = orders[idx];
+  const paid = Number(paidValue);
+  order['已付金額'] = paid;
+  order['付款時間'] = new Date().toLocaleString();
+  order['找零金額'] = paid - Number(order['金額']);
+  order['狀態'] = (order['找零金額']>=0) ? "完成" : "待付款";
   saveOrders(orders);
   renderOrders();
+  sendToGoogleSheet(order, "update");
+}
+
+function updatePayMethod(idx, method) {
+  const orders = loadOrders();
+  const order = orders[idx];
+  order['付款方式'] = method;
+  saveOrders(orders);
+  renderOrders();
+  sendToGoogleSheet(order, "update");
 }
 
 /***** 初始化 *****/
@@ -182,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateTotal();
 
   document.getElementById('clearOrders').addEventListener('click', () => {
-    if (confirm('確定清除？')) {
+    if (confirm('確定清除？（不會刪 Google Sheet）')) {
       localStorage.removeItem('orders');
       renderOrders();
     }
@@ -204,8 +244,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const drinks = Array.from(document.querySelectorAll('input[name="drinks"]:checked')).map(cb => drinksList[cb.value].name);
-    const sugar = document.getElementById('sugarLevel').value;
-    const ice = document.getElementById('iceLevel').value;
+
+    const sugar = "正常"; // 可以再擴充
+    const ice = "正常";   // 可以再擴充
 
     const comboIdx = document.querySelector('input[name="combo"]:checked')?.value;
     const comboName = comboIdx ? comboList[comboIdx].name : '';
@@ -232,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
     saveOrders(orders);
     renderOrders();
 
-    await sendToGoogleSheet(order);
+    await sendToGoogleSheet(order, "add");
 
     e.target.reset();
     updateTotal();

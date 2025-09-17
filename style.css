@@ -1,43 +1,72 @@
 body {
   font-family: "Microsoft JhengHei", sans-serif;
-  background: #fff8f0;
+  margin: 20px;
+  background: #fffaf4;
   color: #333;
-  margin: 0;
-  padding: 0;
 }
-.container {
-  max-width: 800px;
-  margin: auto;
-  padding: 20px;
-  background: #fff;
-}
+
 h1 {
   color: #d35400;
 }
+
 h2 {
   color: #e67e22;
   margin-top: 20px;
 }
-label {
-  display: inline-block;
-  margin: 5px 10px;
+
+label.inline {
+  margin-right: 15px;
 }
-button {
-  margin-top: 10px;
-  padding: 5px 15px;
-  background: orange;
+
+.snack-item {
+  margin: 5px 0;
+}
+
+.flavor-select {
+  margin-left: 8px;
+  padding: 3px;
+}
+
+#totalPrice {
+  font-weight: bold;
+  color: #c0392b;
+}
+
+#submitBtn {
+  padding: 8px 16px;
+  background-color: orange;
+  color: white;
   border: none;
   cursor: pointer;
+  border-radius: 4px;
 }
-table {
+
+#submitBtn:disabled {
+  background-color: #aaa;
+}
+
+#orderTable {
   width: 100%;
+  margin-top: 15px;
   border-collapse: collapse;
-  margin-top: 20px;
 }
-th, td {
+
+#orderTable th, #orderTable td {
+  padding: 6px;
   border: 1px solid #ccc;
-  padding: 5px;
   text-align: center;
 }
-.paid { background: #2ecc71; color: white; }
-.unpaid { background: #e74c3c; color: white; }
+
+#orderTable thead {
+  background: #f8e5d4;
+}
+
+#clearOrders {
+  margin-top: 10px;
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}

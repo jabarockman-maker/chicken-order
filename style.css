@@ -1,53 +1,55 @@
 body {
-  font-family: Arial, sans-serif;
-  background: #fdf9f3;
+  font-family: "Microsoft JhengHei", sans-serif;
+  background: #fdf6ec;
   padding: 20px;
-  color: #333;
 }
 
-h2 {
+h1 {
   color: #d35400;
 }
 
-h3 {
+h2 {
   color: #e67e22;
+  margin-top: 20px;
 }
 
-.inline {
+/* 主餐、套餐、飲料、點心 橫向排列 */
+#mainDish label,
+#combo label,
+#drinks label,
+#snacks .snack-item {
+  display: inline-block;
   margin-right: 15px;
+  margin-bottom: 8px;
 }
 
-/* 主餐、套餐：橫向排列 */
-#mainDish, #combo {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-#mainDish label, #combo label {
-  border: 1px solid #ddd;
-  padding: 6px 10px;
-  border-radius: 5px;
-  background: #fffdf8;
-}
-
-/* 點心：橫向排列 */
-#snacks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.snack-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  border: 1px solid #ddd;
-  padding: 6px 10px;
-  border-radius: 5px;
-  background: #fffdf8;
-}
-
-.snack-item select {
+/* 口味下拉靠近選項 */
+.flavor-select {
   margin-left: 5px;
+}
+
+#orderTable {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+}
+
+#orderTable th, #orderTable td {
+  padding: 6px 8px;
+  text-align: center;
+}
+
+button {
+  background: orange;
+  border: none;
+  padding: 8px 14px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }

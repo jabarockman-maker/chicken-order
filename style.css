@@ -1,21 +1,41 @@
 body {
-  font-family: "微軟正黑體", sans-serif;
-  background: #fff8ef;
-  color: #333;
+  font-family: "Microsoft JhengHei", sans-serif;
+  background: #fff6eb;
   padding: 20px;
 }
 
-h1, h2 {
+h1, h2, h3 {
   color: #d35400;
 }
 
-.snack-list label {
-  display: inline-block;
-  width: 250px;
+.menu-group, .menu-grid {
+  margin: 10px 0;
 }
 
-.snack-list select {
-  margin-left: 10px;
+.menu-grid label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 5px 0;
+}
+
+input[type="number"] {
+  width: 50px;
+}
+
+.chicken-run {
+  display: flex;
+  align-items: center;
+}
+
+.chicken {
+  width: 40px;
+  animation: runAcross 2s ease-in-out;
+}
+
+@keyframes runAcross {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
 }
 
 table {
@@ -25,20 +45,7 @@ table {
 }
 
 th, td {
-  border: 1px solid #ccc;
-  padding: 8px;
+  border: 1px solid #ddd;
+  padding: 6px;
   text-align: center;
-}
-
-.chicken-run {
-  width: 50px;
-  height: 50px;
-  background: url("chicken.png") no-repeat center;
-  background-size: contain;
-  animation: runAcross 3s linear;
-}
-
-@keyframes runAcross {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(100vw); }
 }

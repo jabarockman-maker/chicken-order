@@ -1,8 +1,8 @@
-/***** 你的 Google Apps Script Web App URL（/exec） *****/
+/***** Google Apps Script Web App URL *****/
 const googleScriptURL =
-  'https://script.google.com/macros/s/AKfycbyrA_MVNiHvIlQ0nI-Dh1_ta3LlaDaqg5hLl23qXuQgT3fszsaPpyILSItrmceJ5tT3/exec';
+  'https://script.google.com/macros/s/AKfycbwej-lW5ZQc7DFXJ-rEUqTnvLS-qYKgmVLLFZZ04OAMODkKhMZI93mWo_WXsxfy3EnL/exec';
 
-/***** 菜單與價格（口味皆不加價） *****/
+/***** 菜單與價格 *****/
 const mainDishList = [
   { name: "脆皮雞排", price: 85 },
   { name: "無骨雞塊", price: 70 },
@@ -11,31 +11,13 @@ const mainDishList = [
   { name: "無敵雞塊(大)", price: 120 }
 ];
 
-const flavorList = [
-  { name: "（不選）", price: 0 },
-  { name: "原味", price: 0 },
-  { name: "胡椒", price: 0 },
-  { name: "辣味", price: 0 },
-  { name: "梅粉", price: 0 },
-  { name: "綜合", price: 0 },
-  { name: "特調", price: 0 },
-  { name: "咖哩", price: 0 },
-  { name: "海苔", price: 0 },
-  { name: "起司", price: 0 }
-];
+const flavorList = ["（不選）","原味","胡椒","辣味","梅粉","綜合","特調","咖哩","海苔","起司"];
 
 const snackList = [
-  { name: "柳葉魚", price: 39 }, { name: "脆皮七里香", price: 30 }, { name: "脆皮雞心", price: 30 },
-  { name: "脆皮雞翅", price: 30 }, { name: "脆薯（大份）", price: 50 }, { name: "脆薯（小份）", price: 30 },
-  { name: "貢丸", price: 30 }, { name: "噗波起司球", price: 30 }, { name: "起司條（2入）", price: 30 },
-  { name: "美式洋蔥圈", price: 30 }, { name: "包心小湯圓", price: 30 }, { name: "甜不辣（大份）", price: 50 },
-  { name: "甜不辣（小份）", price: 20 }, { name: "QQ地瓜球", price: 20 }, { name: "QQ芋球", price: 20 },
-  { name: "銀絲卷", price: 20 }, { name: "燻乳銀絲卷", price: 25 }, { name: "梅子地瓜（大）", price: 50 },
-  { name: "梅子地瓜（小）", price: 20 }, { name: "米腸", price: 20 }, { name: "花枝丸（大份）", price: 50 },
-  { name: "花枝丸（小份）", price: 20 }, { name: "米血糕", price: 20 }, { name: "百頁豆腐", price: 20 },
-  { name: "蘿蔔糕", price: 20 }, { name: "芋頭餅", price: 20 }, { name: "四季豆", price: 30 },
-  { name: "杏包菇", price: 30 }, { name: "花椰菜", price: 30 }, { name: "鮮香菇", price: 30 },
-  { name: "玉米筍", price: 30 }, { name: "炸茄子", price: 30 }
+  { name: "柳葉魚", price: 39 }, { name: "脆皮七里香", price: 30 },
+  { name: "脆皮雞心", price: 30 }, { name: "脆皮雞翅", price: 30 },
+  { name: "脆薯（大份）", price: 50 }, { name: "脆薯（小份）", price: 30 },
+  { name: "貢丸", price: 30 }, { name: "噗波起司球", price: 30 }
 ];
 
 const drinksList = [
@@ -54,63 +36,40 @@ const comboList = [
 const loadOrders = () => JSON.parse(localStorage.getItem('orders') || '[]');
 const saveOrders = (orders) => localStorage.setItem('orders', JSON.stringify(orders));
 
-/***** UI 產生 *****/
-function genRadio(list, containerId, groupName, onChange) {
+/***** UI 建立 *****/
+function genRadio(list, containerId, groupName, withFlavor) {
   const host = document.getElementById(containerId);
   host.innerHTML = '';
   list.forEach((item, i) => {
     const label = document.createElement('label');
-    label.className = 'inline';
     const input = Object.assign(document.createElement('input'), {
       type: 'radio', name: groupName, value: String(i)
     });
-    if (onChange) input.addEventListener('change', onChange);
     label.append(input, `${item.name}（$${item.price}）`);
     host.appendChild(label);
+
+    if (withFlavor) {
+      const sel = buildFlavorSelect(`${groupName}Flavor-${i}`);
+      sel.disabled = true;
+      input.addEventListener('change', () => {
+        document.querySelectorAll(`#${containerId} select`).forEach(s => s.disabled = true);
+        sel.disabled = false;
+      });
+      host.appendChild(sel);
+    }
   });
 }
 
 function buildFlavorSelect(id) {
   const sel = document.createElement('select');
-  sel.id = id; sel.className = 'flavor-select';
-  flavorList.forEach((f, idx) => {
+  sel.id = id;
+  flavorList.forEach(f => {
     const opt = document.createElement('option');
-    opt.value = String(idx);
-    opt.textContent = f.name;
+    opt.value = f;
+    opt.textContent = f;
     sel.appendChild(opt);
   });
-  sel.addEventListener('change', updateTotal);
   return sel;
-}
-
-function showMainFlavor() {
-  const host = document.getElementById('mainFlavorHost');
-  host.innerHTML = '';
-  const selected = document.querySelector('input[name="mainDish"]:checked');
-  if (!selected) return;
-  const box = document.createElement('div');
-  box.className = 'inline';
-  const label = document.createElement('label');
-  label.textContent = '主餐口味：';
-  const sel = buildFlavorSelect('mainFlavor');
-  box.append(label, sel);
-  host.appendChild(box);
-  sel.focus();
-}
-
-function showComboFlavor() {
-  const host = document.getElementById('comboFlavorHost');
-  host.innerHTML = '';
-  const selected = document.querySelector('input[name="combo"]:checked');
-  if (!selected) return;
-  const box = document.createElement('div');
-  box.className = 'inline';
-  const label = document.createElement('label');
-  label.textContent = '套餐口味：';
-  const sel = buildFlavorSelect('comboFlavor');
-  box.append(label, sel);
-  host.appendChild(box);
-  sel.focus();
 }
 
 function genCheckboxSnacks() {
@@ -118,7 +77,6 @@ function genCheckboxSnacks() {
   host.innerHTML = '';
   snackList.forEach((item, i) => {
     const wrap = document.createElement('div');
-    wrap.className = 'snack-item';
     const cb = Object.assign(document.createElement('input'), {
       type: 'checkbox', name: 'snacks', value: String(i)
     });
@@ -126,11 +84,7 @@ function genCheckboxSnacks() {
     label.textContent = `${item.name}（$${item.price}）`;
     const flavor = buildFlavorSelect(`snackFlavor-${i}`);
     flavor.disabled = true;
-    cb.addEventListener('change', () => {
-      flavor.disabled = !cb.checked;
-      updateTotal();
-      if (!flavor.disabled) flavor.focus();
-    });
+    cb.addEventListener('change', () => flavor.disabled = !cb.checked);
     wrap.append(cb, label, flavor);
     host.appendChild(wrap);
   });
@@ -139,8 +93,8 @@ function genCheckboxSnacks() {
 /***** 計價 *****/
 function calcTotal() {
   let total = 0;
-  const mainIdx = document.querySelector('input[name="mainDish"]:checked')?.value;
-  if (mainIdx !== undefined) total += mainDishList[Number(mainIdx)].price;
+  const main = document.querySelector('input[name="mainDish"]:checked');
+  if (main) total += mainDishList[Number(main.value)].price;
 
   document.querySelectorAll('input[name="snacks"]:checked').forEach(cb => {
     total += snackList[Number(cb.value)].price;
@@ -150,53 +104,18 @@ function calcTotal() {
     total += drinksList[Number(cb.value)].price;
   });
 
-  const combo = document.querySelector('input[name="combo"]:checked')?.value;
-  if (combo !== undefined) total += comboList[Number(combo)].price;
+  const combo = document.querySelector('input[name="combo"]:checked');
+  if (combo) total += comboList[Number(combo.value)].price;
 
   return total;
 }
 const updateTotal = () => document.getElementById('totalPrice').textContent = calcTotal();
 
-/***** 訂單表格渲染 *****/
-function renderOrders() {
-  const orders = loadOrders();
-  const tbody = document.querySelector('#orderTable tbody');
-  const tfoot = document.querySelector('#orderTable tfoot');
-  tbody.innerHTML = '';
-  let sum = 0;
-  orders.forEach(o => {
-    sum += o.price;
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${o.name}</td>
-      <td>${o.main}</td>
-      <td>${o.mainFlavor || ''}</td>
-      <td>${o.snacksWithFlavors || ''}</td>
-      <td>${o.drinks || ''}</td>
-      <td>${o.combo || ''}</td>
-      <td>${o.comboFlavor || ''}</td>
-      <td>${o.price}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-  tfoot.innerHTML = `<tr><td colspan="7" style="text-align:right;">總金額合計：</td><td>${sum}</td></tr>`;
-}
-
-/***** 寫進 Google Sheet *****/
-function sendToGoogleSheet({ name, mainName, mainFlavor, snackFlavorPairs, drinkNames, comboName, comboFlavor, price }) {
+/***** Google Sheet 送出 *****/
+function sendToGoogleSheet(order) {
   const payload = new URLSearchParams();
   payload.set('timestamp', new Date().toISOString());
-  payload.set('姓名', name || '');
-  payload.set('主餐', mainName || '');
-  payload.set('主餐口味', mainFlavor || '');
-  payload.set('點心+口味', (snackFlavorPairs.join(', ') || ''));
-  payload.set('飲料', (drinkNames.join(', ') || ''));
-  payload.set('套餐', comboName || '');
-  payload.set('套餐口味', comboFlavor || '');
-  payload.set('金額', String(price || 0));
-
-  console.log('payload to Sheet =', payload.toString());
-
+  Object.entries(order).forEach(([k,v]) => payload.set(k,v));
   return fetch(googleScriptURL, {
     method: 'POST',
     mode: 'no-cors',
@@ -205,93 +124,117 @@ function sendToGoogleSheet({ name, mainName, mainFlavor, snackFlavorPairs, drink
   });
 }
 
+/***** 訂單渲染 *****/
+function renderOrders() {
+  const orders = loadOrders();
+  const tbody = document.querySelector('#orderTable tbody');
+  const tfoot = document.querySelector('#orderTable tfoot');
+  tbody.innerHTML = '';
+  let sum = 0;
+
+  orders.forEach((o, idx) => {
+    sum += Number(o['金額']);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${o['姓名']}</td>
+      <td>${o['主餐']}</td>
+      <td>${o['主餐口味']}</td>
+      <td>${o['點心+口味']}</td>
+      <td>${o['飲料']}</td>
+      <td>${o['甜度']}</td>
+      <td>${o['冰塊']}</td>
+      <td>${o['套餐']}</td>
+      <td>${o['套餐口味']}</td>
+      <td>${o['金額']}</td>
+      <td><input type="checkbox" ${o.paid ? 'checked' : ''} 
+        onchange="togglePaid(${idx}, this.checked)" /></td>`;
+    tbody.appendChild(tr);
+  });
+  tfoot.innerHTML = `<tr><td colspan="9" style="text-align:right;">總金額合計：</td><td>${sum}</td><td></td></tr>`;
+}
+
+function togglePaid(idx, checked) {
+  const orders = loadOrders();
+  orders[idx].paid = checked;
+  orders[idx].paidTime = checked ? new Date().toLocaleString() : '';
+  saveOrders(orders);
+  renderOrders();
+}
+
 /***** 初始化 *****/
 document.addEventListener('DOMContentLoaded', () => {
-  genRadio(mainDishList, 'mainDish', 'mainDish', () => { showMainFlavor(); updateTotal(); });
+  genRadio(mainDishList, 'mainDish', 'mainDish', true);
+  genCheckboxSnacks();
+  genRadio(comboList, 'combo', 'combo', true);
 
   const drinksHost = document.getElementById('drinks');
   drinksList.forEach((d, i) => {
     const label = document.createElement('label');
-    const cb = Object.assign(document.createElement('input'), { type:'checkbox', name:'drinks', value:String(i) });
+    const cb = Object.assign(document.createElement('input'), {
+      type:'checkbox', name:'drinks', value:String(i)
+    });
     cb.addEventListener('change', updateTotal);
     label.append(cb, `${d.name}（$${d.price}）`);
     drinksHost.appendChild(label);
   });
 
-  genCheckboxSnacks();
-  genRadio(comboList, 'combo', 'combo', () => { showComboFlavor(); updateTotal(); });
-
   renderOrders();
   updateTotal();
 
   document.getElementById('clearOrders').addEventListener('click', () => {
-    if (confirm('確定清除本機訂單列表？（不會刪 Google Sheet）')) {
+    if (confirm('確定清除？')) {
       localStorage.removeItem('orders');
       renderOrders();
     }
   });
 
-  document.getElementById('orderForm').addEventListener('submit', async (e) => {
+  document.getElementById('orderForm').addEventListener('submit', async e => {
     e.preventDefault();
-
-    const btn = document.getElementById('submitBtn');
-    btn.disabled = true; btn.textContent = '送出中…';
-
     const name = document.getElementById('name').value.trim();
-    if (!name) { alert('請輸入姓名'); btn.disabled=false; btn.textContent='送出訂單'; return; }
+    if (!name) return alert('請輸入姓名');
 
     const mainIdx = document.querySelector('input[name="mainDish"]:checked')?.value;
-    const mainName = mainIdx !== undefined ? mainDishList[Number(mainIdx)].name : '';
+    const mainName = mainIdx ? mainDishList[mainIdx].name : '';
+    const mainFlavorSel = document.querySelector(`#mainDishFlavor-${mainIdx}`);
+    const mainFlavor = mainFlavorSel ? mainFlavorSel.value : '';
 
-    const mainFlavorSel = document.getElementById('mainFlavor');
-    const mainFlavor = mainFlavorSel ? flavorList[Number(mainFlavorSel.value)].name : '';
-
-    const snackChecks = Array.from(document.querySelectorAll('input[name="snacks"]:checked'));
-    const snackFlavorPairs = snackChecks.map(cb => {
-      const i = Number(cb.value);
-      const sel = document.getElementById(`snackFlavor-${i}`);
-      const flv = sel ? flavorList[Number(sel.value)].name : '';
-      return flv ? `${snackList[i].name}（${flv}）` : snackList[i].name;
+    const snacks = Array.from(document.querySelectorAll('input[name="snacks"]:checked')).map(cb => {
+      const sel = document.getElementById(`snackFlavor-${cb.value}`);
+      return snackList[cb.value].name + (sel ? `（${sel.value}）` : '');
     });
 
-    const drinkNames = Array.from(document.querySelectorAll('input[name="drinks"]:checked'))
-      .map(cb => drinksList[Number(cb.value)].name);
+    const drinks = Array.from(document.querySelectorAll('input[name="drinks"]:checked')).map(cb => drinksList[cb.value].name);
+    const sugar = document.getElementById('sugarLevel').value;
+    const ice = document.getElementById('iceLevel').value;
 
     const comboIdx = document.querySelector('input[name="combo"]:checked')?.value;
-    const comboName = comboIdx !== undefined ? comboList[Number(comboIdx)].name : '';
-    const comboFlavorSel = document.getElementById('comboFlavor');
-    const comboFlavor = comboFlavorSel ? flavorList[Number(comboFlavorSel.value)].name : '';
+    const comboName = comboIdx ? comboList[comboIdx].name : '';
+    const comboFlavorSel = document.querySelector(`#comboFlavor-${comboIdx}`);
+    const comboFlavor = comboFlavorSel ? comboFlavorSel.value : '';
 
     const price = calcTotal();
 
-    // —— 本機顯示 —— 
+    const order = {
+      '姓名': name,
+      '主餐': mainName,
+      '主餐口味': mainFlavor,
+      '點心+口味': snacks.join('、'),
+      '飲料': drinks.join('、'),
+      '甜度': sugar,
+      '冰塊': ice,
+      '套餐': comboName,
+      '套餐口味': comboFlavor,
+      '金額': price
+    };
+
     const orders = loadOrders();
-    orders.push({
-      name,
-      main: mainName,
-      mainFlavor,
-      snacksWithFlavors: snackFlavorPairs.join('、'),
-      drinks: drinkNames.join('、'),
-      combo: comboName,
-      comboFlavor,
-      price
-    });
+    orders.push(order);
     saveOrders(orders);
     renderOrders();
 
-    // —— 寫入 Google Sheet —— 
-    try {
-      await sendToGoogleSheet({ name, mainName, mainFlavor, snackFlavorPairs, drinkNames, comboName, comboFlavor, price });
-    } catch (err) {
-      console.error('送 Sheets 失敗：', err);
-    }
+    await sendToGoogleSheet(order);
 
-    // 重設表單
     e.target.reset();
-    document.getElementById('mainFlavorHost').innerHTML = '';
-    document.getElementById('comboFlavorHost').innerHTML = '';
     updateTotal();
-
-    btn.disabled = false; btn.textContent = '送出訂單';
   });
 });

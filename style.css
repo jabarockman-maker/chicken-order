@@ -1,65 +1,52 @@
 body {
-  font-family: "Microsoft JhengHei", sans-serif;
-  background: #fff8ee;
+  font-family: Arial, sans-serif;
+  background: #fff7e6;
   color: #333;
 }
-
 .container {
-  max-width: 900px;
+  width: 80%;
   margin: auto;
-  background: white;
+  background: #fff;
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px #ccc;
+  border-radius: 10px;
 }
-
 h1 {
-  color: #e67e22;
-}
-
-h2 {
   color: #d35400;
+}
+h2 {
+  color: #e67e22;
   margin-top: 20px;
 }
-
-label {
-  display: block;
-  margin: 5px 0;
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
-
-#snacks label {
-  display: inline-block;
+.grid label {
   width: 200px;
-  margin: 5px;
 }
-
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
 }
-
-table th, table td {
+th, td {
   border: 1px solid #ccc;
   padding: 8px;
   text-align: center;
 }
-
-table th {
+th {
   background: orange;
   color: white;
 }
-
-button {
+#submit {
   background: orange;
   color: white;
   border: none;
-  padding: 10px;
-  margin-top: 10px;
+  padding: 10px 20px;
   cursor: pointer;
   border-radius: 5px;
 }
-
-button:hover {
+#submit:hover {
   background: darkorange;
 }

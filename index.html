@@ -2,68 +2,75 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>雞排訂購單</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
     <h1>🐔 雞排訂購單</h1>
+    <form id="orderForm">
+      <label>姓名：
+        <input type="text" id="name" name="姓名" required>
+      </label>
 
-    <label>姓名：<input type="text" id="name" required></label>
+      <h2>主餐（擇一）</h2>
+      <div id="mains"></div>
 
-    <h2>主餐（擇一，可不選）</h2>
-    <div id="mains"></div>
+      <h2>點心（可複選）</h2>
+      <div id="sides" class="flex-grid"></div>
 
-    <h2>點心（可複選）</h2>
-    <div id="sides"></div>
+      <h2>飲料（可複選）</h2>
+      <div id="drinks"></div>
+      <label>甜度：
+        <select id="sweetness" name="甜度">
+          <option value="正常">正常</option>
+          <option value="少糖">少糖</option>
+          <option value="半糖">半糖</option>
+          <option value="微糖">微糖</option>
+          <option value="無糖">無糖</option>
+        </select>
+      </label>
+      <label>冰塊：
+        <select id="ice" name="冰塊">
+          <option value="正常">正常</option>
+          <option value="少冰">少冰</option>
+          <option value="去冰">去冰</option>
+          <option value="溫">溫</option>
+        </select>
+      </label>
 
-    <h2>飲料（可複選）</h2>
-    <div id="drinks"></div>
-    <label>甜度：
-      <select id="sugar">
-        <option value="正常">正常</option>
-        <option value="少糖">少糖</option>
-        <option value="半糖">半糖</option>
-        <option value="微糖">微糖</option>
-        <option value="無糖">無糖</option>
-      </select>
-    </label>
-    <label>冰塊：
-      <select id="ice">
-        <option value="正常">正常</option>
-        <option value="少冰">少冰</option>
-        <option value="去冰">去冰</option>
-        <option value="完全去冰">完全去冰</option>
-      </select>
-    </label>
+      <h2>套餐（擇一，可不選）</h2>
+      <div id="combos"></div>
 
-    <h2>套餐（擇一，可不選）</h2>
-    <div id="sets"></div>
+      <h2>付款資訊</h2>
+      <label>付款方式：
+        <select id="paymentMethod" name="付款方式">
+          <option value="未付款">未付款</option>
+          <option value="現金">現金</option>
+          <option value="LinePay">LinePay</option>
+        </select>
+      </label>
+      <label>已付金額：
+        <input type="number" id="paidAmount" name="已付金額" value="0">
+      </label>
+      <label>找零金額：
+        <input type="number" id="changeAmount" name="找零金額" readonly>
+      </label>
 
-    <h3>總金額：<span id="total">0</span> 元</h3>
-    <button id="submitOrder">送出訂單</button>
+      <h3 id="total">總金額：0 元</h3>
+      <button type="submit">送出訂單</button>
+    </form>
 
     <h2>訂單總覽</h2>
     <table id="orderTable">
       <thead>
         <tr>
-          <th>姓名</th>
-          <th>主餐</th>
-          <th>主餐口味</th>
-          <th>點心+口味</th>
-          <th>飲料</th>
-          <th>甜度</th>
-          <th>冰塊</th>
-          <th>套餐</th>
-          <th>套餐口味</th>
-          <th>金額</th>
+          <th>姓名</th><th>主餐</th><th>主餐口味</th><th>點心+口味</th><th>飲料</th><th>甜度</th><th>冰塊</th><th>套餐</th><th>套餐口味</th><th>金額</th><th>付款方式</th><th>已付金額</th><th>找零金額</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
   </div>
-
   <script src="script.js"></script>
 </body>
 </html>

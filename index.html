@@ -6,61 +6,72 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>🐔 雞排訂購單</h1>
+  <h2>🐔 雞排訂購單</h2>
 
   <form id="orderForm">
-    <label>姓名：
-      <input type="text" id="name" required>
-    </label>
+    <label>姓名：</label>
+    <input type="text" id="name" required>
 
-    <h2>主餐（擇一）</h2>
+    <!-- 主餐 -->
+    <h3>主餐（擇一）</h3>
     <div id="mainDish"></div>
     <div id="mainFlavorHost"></div>
 
-    <h2>點心（可複選）</h2>
+    <!-- 點心 -->
+    <h3>點心（可複選）</h3>
     <div id="snacks"></div>
 
-    <h2>飲料（可複選）</h2>
+    <!-- 飲料 -->
+    <h3>飲料（可複選）</h3>
     <div id="drinks"></div>
-    <label>甜度：
-      <select id="sweetness">
+    <div>
+      <label>甜度：</label>
+      <select id="drinkSugar">
         <option>正常</option>
         <option>少糖</option>
         <option>半糖</option>
         <option>微糖</option>
         <option>無糖</option>
       </select>
-    </label>
-    <label>冰塊：
-      <select id="ice">
+      <label>冰塊：</label>
+      <select id="drinkIce">
         <option>正常</option>
         <option>少冰</option>
         <option>去冰</option>
-        <option>完全去冰</option>
+        <option>熱飲</option>
       </select>
-    </label>
+    </div>
 
-    <h2>套餐（擇一，可不選）</h2>
+    <!-- 套餐 -->
+    <h3>套餐（擇一，可不選）</h3>
     <div id="combo"></div>
     <div id="comboFlavorHost"></div>
 
-    <h2>付款資訊</h2>
-    <label>付款方式：
-      <select id="paymentMethod">
-        <option value="現金">現金</option>
-        <option value="轉帳">轉帳</option>
-        <option value="LINE Pay">LINE Pay</option>
-      </select>
-    </label>
-    <label>已付金額：
-      <input type="number" id="paidAmount" min="0">
-    </label>
+    <!-- 金額 -->
+    <p>總金額：<span id="totalPrice">0</span> 元</p>
 
+    <!-- 付款 -->
+    <h3>付款資訊</h3>
+    <label>付款方式：</label>
+    <select id="payMethod">
+      <option value="">（未付款）</option>
+      <option value="現金">現金</option>
+      <option value="LinePay">Line Pay</option>
+      <option value="轉帳">轉帳</option>
+    </select>
+    <label>已付金額：</label>
+    <input type="number" id="paidAmount" min="0" placeholder="輸入金額">
+    <label>找零金額：</label>
+    <input type="number" id="changeAmount" readonly>
+    <label><input type="checkbox" id="paymentDone"> 找零完成</label>
+
+    <br><br>
     <button type="submit" id="submitBtn">送出訂單</button>
   </form>
 
-  <h2>📋 訂單總覽</h2>
-  <table id="orderTable">
+  <!-- 訂單總覽 -->
+  <h3>📝 訂單總覽</h3>
+  <table id="orderTable" border="1">
     <thead>
       <tr>
         <th>姓名</th>
@@ -74,10 +85,9 @@
         <th>套餐口味</th>
         <th>金額</th>
         <th>付款方式</th>
-        <th>已付金額</th>
-        <th>找零金額</th>
-        <th>狀態</th>
-        <th>付款時間</th>
+        <th>已付</th>
+        <th>找零</th>
+        <th>付款狀態</th>
       </tr>
     </thead>
     <tbody></tbody>
